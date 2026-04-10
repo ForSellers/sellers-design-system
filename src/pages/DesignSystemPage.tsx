@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -100,7 +100,7 @@ function ColorSwatch({ hex, name, token, border = false }: { hex: string; name: 
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(hex); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-      className={`group relative w-full rounded-xl overflow-hidden shadow-sm cursor-pointer transition-transform hover:scale-[1.02] ${border ? "border border-slate-200" : ""}`}
+      className="group relative w-full p-0 rounded-xl overflow-hidden shadow-sm border border-slate-200 cursor-pointer transition-transform hover:scale-[1.02]"
       title={`Copiar ${hex}`}
     >
       <div className="h-20 border-b border-slate-200" style={{ backgroundColor: hex }} />
@@ -597,85 +597,162 @@ function DrawerToastDemo() {
   );
 }
 
+function OculosDraw({ size = 40, color = "#E8533A", className = "" }: { size?: number; color?: string; className?: string }) {
+  const sw = 1.5;
+  const dur = "4.5s";
+  const ease = "cubic-bezier(0.65,0,0.35,1)";
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <circle cx="6"  cy="12" r="4.5" stroke={color} strokeWidth={sw} strokeDasharray="30" strokeDashoffset="60"
+        style={{ animation: `oculos-draw-in ${dur} ${ease} infinite` }} />
+      <line x1="10.5" y1="12" x2="13.5" y2="12" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeDasharray="4" strokeDashoffset="60"
+        style={{ animation: `oculos-draw-in ${dur} ${ease} 0.3s infinite`, opacity: 0 }} />
+      <circle cx="18" cy="12" r="4.5" stroke={color} strokeWidth={sw} strokeDasharray="30" strokeDashoffset="60"
+        style={{ animation: `oculos-draw-in ${dur} ${ease} 0.15s infinite`, opacity: 0 }} />
+    </svg>
+  );
+}
+
 function TailwindAnimsGrid() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div className="space-y-3">
 
-      {/* 1 — Spin (progress_activity — padrão de produção) */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
-        <div className="flex items-center justify-center w-20 h-20">
-          <MSIcon
-            name="progress_activity"
-            className="animate-spin text-[38px]"
-            style={{ color: "#E8533A", animationDuration: "1.1s" }}
-          />
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Spin</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-spin</p>
-          <p className="text-[9px] font-mono text-slate-300 mt-0.5">progress_activity</p>
-        </div>
-      </div>
+      {/* ── Row 1 — Originais ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
 
-      {/* 2 — Pulse */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
-        <div className="flex flex-col items-center justify-center w-20 h-20 gap-2">
-          <OculosIcon size={28} className="animate-pulse" style={{ color: "#2563EB" }} />
-          <div className="w-12 h-1.5 rounded-full bg-blue-100 overflow-hidden">
-            <div className="h-full w-2/3 bg-blue-400 animate-pulse rounded-full" />
+        {/* 1 — Spin */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20">
+            <div className="animate-oculos-orbit" style={{ animationDuration: "2.2s" }}>
+              <OculosIcon size={24} style={{ color: "#E8533A" }} />
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Spin</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-spin</p>
           </div>
         </div>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Pulse</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-pulse</p>
-        </div>
-      </div>
 
-      {/* 3 — Ping */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
-        <div className="relative flex items-center justify-center w-20 h-20">
-          <span
-            className="absolute inline-flex w-14 h-14 rounded-full animate-ping"
-            style={{ backgroundColor: "rgba(232,83,58,0.18)" }}
-          />
-          <OculosIcon size={28} style={{ color: "#E8533A" }} />
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Ping</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-ping</p>
-        </div>
-      </div>
-
-      {/* 4 — Bounce */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-[#0a1628] py-7 px-4">
-        <div className="flex items-center justify-center w-20 h-20">
-          <OculosIcon size={28} className="animate-bounce" style={{ color: "#ffffff" }} />
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-slate-300">Bounce</p>
-          <p className="text-[10px] font-mono text-slate-500 mt-0.5">animate-bounce</p>
-        </div>
-      </div>
-
-      {/* 5 — Wave (staggered) */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
-        <div className="flex items-end justify-center gap-2 w-20 h-20">
-          {[
-            { delay: "0s",    color: "#E8533A" },
-            { delay: "0.18s", color: "#2563EB" },
-            { delay: "0.36s", color: "#001960" },
-          ].map((item, i) => (
-            <div key={i} className="animate-bounce" style={{ animationDelay: item.delay, animationDuration: "0.9s" }}>
-              <OculosIcon size={18} style={{ color: item.color }} />
+        {/* 2 — Pulse */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex flex-col items-center justify-center w-20 h-20 gap-2">
+            <OculosIcon size={28} className="animate-pulse" style={{ color: "#2563EB" }} />
+            <div className="w-12 h-1.5 rounded-full bg-blue-100 overflow-hidden">
+              <div className="h-full w-2/3 bg-blue-400 animate-pulse rounded-full" />
             </div>
-          ))}
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Pulse</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-pulse</p>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Wave</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">staggered delay</p>
+
+        {/* 3 — Ping */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="relative flex items-center justify-center w-20 h-20">
+            <span
+              className="absolute inline-flex w-14 h-14 rounded-full animate-ping"
+              style={{ backgroundColor: "rgba(232,83,58,0.18)" }}
+            />
+            <OculosIcon size={28} style={{ color: "#E8533A" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Ping</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-ping</p>
+          </div>
+        </div>
+
+        {/* 4 — Bounce */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-[#0a1628] py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20">
+            <OculosIcon size={28} className="animate-bounce" style={{ color: "#ffffff" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-300">Bounce</p>
+            <p className="text-[10px] font-mono text-slate-500 mt-0.5">animate-bounce</p>
+          </div>
+        </div>
+
+        {/* 5 — Wave (staggered) */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-end justify-center gap-2 w-20 h-20">
+            {[
+              { delay: "0s",    color: "#E8533A" },
+              { delay: "0.18s", color: "#2563EB" },
+              { delay: "0.36s", color: "#001960" },
+            ].map((item, i) => (
+              <div key={i} className="animate-bounce" style={{ animationDelay: item.delay, animationDuration: "0.9s" }}>
+                <OculosIcon size={18} style={{ color: item.color }} />
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Wave</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">staggered delay</p>
+          </div>
         </div>
       </div>
 
+      {/* ── Row 2 — Óculos Showcase ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+        {/* 6 · Float */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20">
+            <OculosIcon size={32} className="animate-oculos-float" style={{ color: "#E8533A" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Float</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">translateY · rotate</p>
+          </div>
+        </div>
+
+        {/* 7 · Morph */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20">
+            <OculosIcon size={32} className="animate-oculos-morph" style={{ color: "#2563EB" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Morph</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">scale · rotate · spring</p>
+          </div>
+        </div>
+
+        {/* 8 · Draw */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20">
+            <OculosDraw size={36} color="#E8533A" />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Draw</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">stroke-dashoffset</p>
+          </div>
+        </div>
+
+        {/* 9 · Glitch */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20 relative">
+            <OculosIcon size={32} className="absolute animate-oculos-glitch" style={{ color: "#38bdf8", opacity: 0.5 }} />
+            <OculosIcon size={32} className="absolute animate-oculos-glitch" style={{ color: "#E8533A", opacity: 0.5, animationDelay: "0.05s" }} />
+            <OculosIcon size={32} className="animate-oculos-glitch" style={{ color: "#001960" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Glitch</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">hue-rotate · translate</p>
+          </div>
+        </div>
+
+        {/* 10 · Reveal */}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+          <div className="flex items-center justify-center w-20 h-20">
+            <OculosIcon size={36} className="animate-oculos-typewriter" style={{ color: "#001960" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-semibold text-slate-700">Reveal</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">clip-path · inset</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -871,33 +948,849 @@ function ChartPalettePreview() {
   );
 }
 
+// ─── USER MENU PREVIEW ──────────────────────────────────────────────────────
+
+function UserMenuPreview() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-between gap-6">
+      {/* Demo */}
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-2 rounded-full pl-1 pr-2.5 py-1 hover:bg-slate-100 transition-colors"
+        >
+          <span
+            className="flex items-center justify-center w-7 h-7 rounded-full text-white text-[11px] font-bold select-none"
+            style={{ backgroundColor: "#E8533A" }}
+          >
+            IO
+          </span>
+          <span className="text-xs font-medium text-slate-700">Igor Oliveira</span>
+          <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[14px] text-slate-400" />
+        </button>
+
+        {open && (
+          <div className="absolute right-0 mt-1.5 w-64 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden animate-modal-in">
+            <div className="px-4 py-3 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-bold"
+                  style={{ backgroundColor: "#E8533A" }}
+                >
+                  IO
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">Igor Oliveira</p>
+                  <p className="text-xs text-slate-400 truncate">igor@sellers.com.br</p>
+                </div>
+              </div>
+              <div className="mt-2 flex gap-2">
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  CFO / CEO
+                </span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  Analista financeiro
+                </span>
+              </div>
+            </div>
+            <div className="py-1">
+              <button className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                <MSIcon name="logout" className="text-[18px] text-slate-400" />
+                Sair da conta
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Specs */}
+      <div className="space-y-2 text-xs text-slate-500 max-w-xs">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: "#E8533A" }} />
+          <span>Avatar com iniciais em coral</span>
+        </div>
+        <p className="text-[10px] font-mono text-slate-400">Click-outside fecha o dropdown · ESC fecha · z-index: 50</p>
+        <div className="flex gap-2">
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">CFO / CEO</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Analista</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── RETRY LOADER PREVIEW ───────────────────────────────────────────────────
+
+function RetryLoaderPreview() {
+  const [state, setState] = useState<"loading" | "error" | "retry">("loading");
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Loading */}
+      <div
+        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "loading" ? "border-blue-300 bg-blue-50/30" : "border-slate-200"}`}
+        onClick={() => setState("loading")}
+      >
+        <div className="flex flex-col items-center justify-center py-6 gap-3">
+          <div className="animate-oculos-orbit" style={{ animationDuration: "2.2s" }}>
+            <OculosIcon size={40} style={{ color: "#E8533A" }} />
+          </div>
+          <span className="text-sm text-slate-500">Carregando...</span>
+        </div>
+        <p className="text-[10px] font-mono text-slate-400 text-center mt-1">loading state</p>
+      </div>
+
+      {/* Loading with retry counter */}
+      <div
+        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "retry" ? "border-blue-300 bg-blue-50/30" : "border-slate-200"}`}
+        onClick={() => setState("retry")}
+      >
+        <div className="flex flex-col items-center justify-center py-6 gap-3">
+          <OculosDraw size={40} color="#E8533A" />
+          <span className="text-sm text-slate-500">Carregando...</span>
+          <span className="text-xs text-slate-400">Tentativa 2 de 3...</span>
+        </div>
+        <p className="text-[10px] font-mono text-slate-400 text-center mt-1">retry attempt</p>
+      </div>
+
+      {/* Error */}
+      <div
+        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "error" ? "border-red-300 bg-red-50/30" : "border-slate-200"}`}
+        onClick={() => setState("error")}
+      >
+        <div className="flex flex-col items-center justify-center py-6 gap-4">
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+            <OculosIcon size={28} style={{ color: "#f87171" }} />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-slate-700">Nao foi possivel carregar</p>
+            <p className="text-xs text-slate-400 mt-1">Timeout ao conectar com o servidor.</p>
+          </div>
+          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+            <MSIcon name="refresh" className="text-base" />
+            Tentar novamente
+          </button>
+        </div>
+        <p className="text-[10px] font-mono text-slate-400 text-center mt-1">error state</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── COUNTUP PREVIEW ────────────────────────────────────────────────────────
+
+function CountUpPreview() {
+  const [key, setKey] = useState(0);
+
+  const FORMATTERS = {
+    brl: (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v),
+    number: (v: number) => String(v),
+  };
+
+  function CountUpDemo({ to, type = "number", className = "" }: { to: number; type?: "brl" | "number"; className?: string }) {
+    const format = FORMATTERS[type];
+    const [display, setDisplay] = useState(format(0));
+    const rafRef = useRef<number | null>(null);
+    const startRef = useRef<number | null>(null);
+
+    useEffect(() => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      startRef.current = performance.now();
+
+      function tick(timestamp: number) {
+        const elapsed = timestamp - startRef.current!;
+        const progress = Math.min(elapsed / 400, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setDisplay(format(Math.round(to * eased)));
+        if (progress < 1) {
+          rafRef.current = requestAnimationFrame(tick);
+        } else {
+          setDisplay(format(to));
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+      return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    }, [to, format, key]);
+
+    return <span className={className}>{display}</span>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-slate-500">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms cubic ease-out. Clique em Replay.</p>
+        <button
+          onClick={() => setKey((k) => k + 1)}
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+        >
+          <MSIcon name="refresh" className="text-[13px]" /> Replay
+        </button>
+      </div>
+      <div key={key} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 border-l-blue-500 bg-blue-50">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Pagas / mes</p>
+          <CountUpDemo to={31} type="number" className="text-2xl font-bold tabular-nums text-blue-900" />
+        </div>
+        <div className="rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 border-l-amber-500 bg-amber-50">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600">Pendentes</p>
+          <CountUpDemo to={14} type="number" className="text-2xl font-bold tabular-nums text-amber-900" />
+        </div>
+        <div className="rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 border-l-violet-500 bg-violet-50">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-violet-600">Total mensal</p>
+          <CountUpDemo to={48750} type="brl" className="text-2xl font-bold tabular-nums text-violet-900" />
+        </div>
+        <div className="rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 border-l-red-500 bg-red-50">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-red-600">Rejeitadas</p>
+          <CountUpDemo to={3} type="number" className="text-2xl font-bold tabular-nums text-red-900" />
+        </div>
+      </div>
+      <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose">
+        <span className="text-slate-500 text-[10px] block mb-2 uppercase tracking-widest">Uso</span>
+        <span className="text-blue-400">import</span>{" "}
+        <span className="text-white">{"{ CountUp }"}</span>{" "}
+        <span className="text-blue-400">from</span>{" "}
+        <span className="text-emerald-400">"@/components/charts/CountUp"</span>
+        <br /><br />
+        <span className="text-pink-400">{"<CountUp"}</span>{" "}
+        <span className="text-yellow-300">to</span><span className="text-white">={"{48750}"}</span>{" "}
+        <span className="text-yellow-300">type</span><span className="text-white">="brl"</span>{" "}
+        <span className="text-yellow-300">duration</span><span className="text-white">={"{400}"}</span>{" "}
+        <span className="text-pink-400">{"/>"}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── MODAL PREVIEW ──────────────────────────────────────────────────────────
+
+function ModalPreview() {
+  const [activeModal, setActiveModal] = useState<"none" | "criar" | "excluir">("none");
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={() => setActiveModal("criar")}
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+        >
+          <MSIcon name="add" className="text-[16px]" /> Abrir modal Criar
+        </button>
+        <button
+          onClick={() => setActiveModal("excluir")}
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
+        >
+          <MSIcon name="delete" className="text-[16px]" /> Abrir modal Excluir
+        </button>
+      </div>
+
+      {/* Inline modal demo — Criar */}
+      {activeModal === "criar" && (
+        <div className="relative rounded-2xl border border-slate-200 overflow-hidden" style={{ minHeight: 340 }}>
+          <div className="absolute inset-0 bg-black/40 animate-fade-in" onClick={() => setActiveModal("none")} />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-modal-in">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+                <div className="flex items-center gap-2">
+                  <MSIcon name="store" className="text-2xl text-blue-600" />
+                  <h2 className="text-base font-semibold text-slate-800">Novo Fornecedor</h2>
+                </div>
+                <button onClick={() => setActiveModal("none")} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                  <MSIcon name="close" className="text-xl" />
+                </button>
+              </div>
+              <div className="px-6 py-5 flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Razao Social <span className="text-red-500">*</span></label>
+                  <input className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nome completo da empresa" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">CNPJ <span className="text-red-500">*</span></label>
+                  <input className="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono" placeholder="00.000.000/0000-00" />
+                </div>
+                <div className="flex gap-3 pt-1">
+                  <button onClick={() => setActiveModal("none")} className="flex-1 px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Cancelar</button>
+                  <button className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                    <MSIcon name="add" className="text-base" /> Cadastrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Inline modal demo — Excluir */}
+      {activeModal === "excluir" && (
+        <div className="relative rounded-2xl border border-slate-200 overflow-hidden" style={{ minHeight: 280 }}>
+          <div className="absolute inset-0 bg-black/40 animate-fade-in" onClick={() => setActiveModal("none")} />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-modal-in">
+              <div className="flex items-start gap-4 px-6 pt-6 pb-4">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 shrink-0">
+                  <MSIcon name="delete" className="text-xl text-red-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-semibold text-slate-800">Excluir fornecedor</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">Shopee Brasil LTDA</p>
+                  <p className="text-xs text-slate-400 font-mono">45.678.123/0001-99</p>
+                </div>
+                <button onClick={() => setActiveModal("none")} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 shrink-0">
+                  <MSIcon name="close" className="text-xl" />
+                </button>
+              </div>
+              <div className="px-6 pb-4">
+                <p className="text-sm text-slate-600">Esta acao e irreversivel. O fornecedor sera removido do OMIE e do sistema.</p>
+              </div>
+              <div className="flex gap-3 px-6 py-4 border-t border-slate-200">
+                <button onClick={() => setActiveModal("none")} className="flex-1 px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Cancelar</button>
+                <button className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 flex items-center justify-center gap-2">
+                  <MSIcon name="delete" className="text-base" /> Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeModal === "none" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-500">
+          <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+            <p className="font-semibold text-slate-700">Modal Criar / Editar</p>
+            <p>Header com icone + titulo, formulario com campos, footer com Cancelar + acao primaria azul.</p>
+            <p className="text-[10px] font-mono text-slate-400">ESC fecha · backdrop black/40 · animate-modal-in · z-50</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+            <p className="font-semibold text-slate-700">Modal Excluir (Destructive)</p>
+            <p>Icone vermelho em circulo, nome do item, mensagem de confirmacao. Footer com Cancelar + acao destrutiva vermelha.</p>
+            <p className="text-[10px] font-mono text-slate-400">rounded-2xl · shadow-xl · max-w-md</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── CONFIDENCE BADGE PREVIEW ───────────────────────────────────────────────
+
+function ConfidenceBadgePreview() {
+  function ConfidenceBadge({ value }: { value: number }) {
+    const pct = Math.round(value * 100);
+    const cls =
+      value >= 0.85
+        ? "text-green-700 bg-green-50 border-green-200"
+        : value >= 0.70
+        ? "text-amber-700 bg-amber-50 border-amber-200"
+        : "text-red-700 bg-red-50 border-red-200";
+    return (
+      <span className={`tabular-nums text-sm font-semibold px-2.5 py-1 rounded-full border ${cls}`}>
+        {pct}%
+      </span>
+    );
+  }
+
+  const levels = [
+    { value: 0.97, label: "Alta", desc: "Verde — acima de 85%. Pode aprovar direto.", icon: "check_circle", iconColor: "text-green-600" },
+    { value: 0.78, label: "Media", desc: "Amber — entre 70% e 85%. Requer atencao.", icon: "warning", iconColor: "text-amber-600" },
+    { value: 0.52, label: "Baixa", desc: "Vermelho — abaixo de 70%. Revisao manual obrigatoria.", icon: "error", iconColor: "text-red-600" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-6">
+        {levels.map((l) => (
+          <div key={l.value} className="flex items-center gap-3">
+            <ConfidenceBadge value={l.value} />
+            <div>
+              <div className="flex items-center gap-1.5">
+                <MSIcon name={l.icon} className={`text-[16px] ${l.iconColor}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'OPSZ' 20" }} />
+                <span className="text-sm font-semibold text-slate-700">{l.label}</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">{l.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose">
+        <span className="text-slate-500 text-[10px] block mb-2 uppercase tracking-widest">Uso em DespesaDetail.tsx</span>
+        <span className="text-pink-400">{"<ConfiancaBadge"}</span>{" "}
+        <span className="text-yellow-300">value</span><span className="text-white">={"{despesa.confianca}"}</span>{" "}
+        <span className="text-pink-400">{"/>"}</span>
+        <br />
+        <span className="text-slate-500">{"// value: 0.0 – 1.0 (float)"}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── FILE UPLOAD / DRAG & DROP ──────────────────────────────────────────────
+
+function FileUploadPreview() {
+  const [dragOver, setDragOver] = useState(false);
+  const [file, setFile] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Empty state */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Vazio</p>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); setFile("NF-e_000456.pdf"); }}
+            className={`rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+              dragOver ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-slate-50 hover:border-slate-300"
+            }`}
+          >
+            <div className="flex flex-col items-center justify-center gap-1.5 py-8 text-center">
+              <MSIcon name="upload_file" className="text-slate-400" style={{ fontSize: 24 }} />
+              <p className="text-xs font-medium text-slate-600">Anexar NF ou boleto</p>
+              <p className="text-[11px] text-slate-400">PDF ou XML · a IA preenche os campos</p>
+            </div>
+          </div>
+        </div>
+
+        {/* With file */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Com arquivo</p>
+          <div className="rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50">
+            <div className="flex items-center gap-3 px-4 py-4">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-700 truncate">{file || "NF-e_000456.pdf"}</p>
+                <p className="text-xs text-slate-400">128 KB · PDF</p>
+              </div>
+              <button onClick={() => setFile(null)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                <MSIcon name="close" className="text-[16px]" />
+              </button>
+            </div>
+            <div className="px-4 pb-3">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700">
+                  <MSIcon name="auto_awesome" style={{ fontSize: 10 }} />
+                  IA
+                </span>
+                <span className="text-slate-500">Extraindo dados do documento...</span>
+                <MSIcon name="progress_activity" className="text-[14px] animate-spin text-blue-500" style={{ animationDuration: "1.1s" }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Drag-over state */}
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Drag-over (hover)</p>
+        <div className="rounded-xl border-2 border-dashed border-blue-400 bg-blue-50">
+          <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">
+            <MSIcon name="file_download" className="text-blue-500" style={{ fontSize: 28 }} />
+            <p className="text-xs font-semibold text-blue-600">Solte o arquivo aqui</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── TOGGLE / SWITCH ────────────────────────────────────────────────────────
+
+function TogglePreview() {
+  const [toggles, setToggles] = useState({ recorrente: true, valorFixo: true, ativo: false, agendamento: true });
+
+  const Toggle = ({ checked, onChange, label, sublabel }: { checked: boolean; onChange: () => void; label: string; sublabel?: string }) => (
+    <div className="flex items-center justify-between py-2">
+      <div>
+        <p className="text-sm font-medium text-slate-700">{label}</p>
+        {sublabel && <p className="text-xs text-slate-400 mt-0.5">{sublabel}</p>}
+      </div>
+      <button
+        onClick={onChange}
+        className="relative w-9 h-5 rounded-full transition-colors flex-shrink-0"
+        style={{ backgroundColor: checked ? "#3b82f6" : "#cbd5e1" }}
+      >
+        <span
+          className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform"
+          style={{ left: checked ? "18px" : "2px" }}
+        />
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="space-y-1 bg-white border border-slate-200 rounded-xl px-5 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Contexto: Despesa recorrente</p>
+        <Toggle checked={toggles.recorrente} onChange={() => setToggles(t => ({ ...t, recorrente: !t.recorrente }))} label="Despesa recorrente" sublabel="Gerar lancamentos automaticamente" />
+        {toggles.recorrente && (
+          <>
+            <Toggle checked={toggles.valorFixo} onChange={() => setToggles(t => ({ ...t, valorFixo: !t.valorFixo }))} label="Valor fixo" sublabel="Manter o mesmo valor em todos os lancamentos" />
+            <div className="pt-2 border-t border-slate-100">
+              <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                <MSIcon name="repeat" className="text-[14px] text-blue-500" />
+                Frequencia: <span className="font-semibold text-slate-700">Mensal</span>
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="space-y-1 bg-white border border-slate-200 rounded-xl px-5 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Contexto: Agendamento & fornecedor</p>
+        <Toggle checked={toggles.agendamento} onChange={() => setToggles(t => ({ ...t, agendamento: !t.agendamento }))} label="Envio automatico" sublabel="Relatorio enviado toda segunda as 20:00" />
+        <Toggle checked={toggles.ativo} onChange={() => setToggles(t => ({ ...t, ativo: !t.ativo }))} label="Fornecedor ativo" sublabel="Desativar remove da lista de selecao" />
+      </div>
+    </div>
+  );
+}
+
+// ─── AGENDAMENTO PREVIEW ────────────────────────────────────────────────────
+
+function AgendamentoPreview() {
+  const DIAS_SEMANA = [
+    { value: 0, label: "Domingo" },
+    { value: 1, label: "Segunda" },
+    { value: 2, label: "Terca" },
+    { value: 3, label: "Quarta" },
+    { value: 4, label: "Quinta" },
+    { value: 5, label: "Sexta" },
+    { value: 6, label: "Sabado" },
+  ];
+
+  const HORAS = Array.from({ length: 24 }, (_, i) => ({
+    value: i,
+    label: `${String(i).padStart(2, "0")}:00`,
+  }));
+
+  const [ativo, setAtivo] = useState(true);
+  const [dia, setDia] = useState(0);
+  const [hora, setHora] = useState(20);
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setOpen(!open)}
+          className="inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors"
+          style={
+            ativo
+              ? { backgroundColor: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }
+              : { backgroundColor: "#f1f5f9", borderColor: "#cbd5e1", color: "#64748b" }
+          }
+        >
+          <MSIcon name={ativo ? "event_repeat" : "event_busy"} className="text-[13px]" />
+          {ativo ? `${DIAS_SEMANA.find(d => d.value === dia)?.label} as ${String(hora).padStart(2, "0")}:00` : "desativado"}
+          <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[12px] ml-0.5" />
+        </button>
+        <p className="text-xs text-slate-500">Trigger button do dropdown</p>
+      </div>
+
+      {open && (
+        <div className="w-72 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+          {/* Toggle */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <MSIcon name="schedule_send" className="text-[18px] text-slate-500" />
+              <span className="text-sm font-semibold text-slate-800">Envio automatico</span>
+            </div>
+            <button
+              onClick={() => setAtivo(!ativo)}
+              className="relative w-9 h-5 rounded-full transition-colors"
+              style={{ backgroundColor: ativo ? "#3b82f6" : "#cbd5e1" }}
+            >
+              <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform" style={{ left: ativo ? "18px" : "2px" }} />
+            </button>
+          </div>
+
+          {ativo && (
+            <div className="px-4 py-3 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Dia da semana</label>
+                <div className="mt-1.5 grid grid-cols-4 gap-1">
+                  {DIAS_SEMANA.map((d) => (
+                    <button
+                      key={d.value}
+                      onClick={() => setDia(d.value)}
+                      className="text-xs py-1.5 px-1 rounded-lg font-medium transition-colors text-center"
+                      style={dia === d.value ? { backgroundColor: "#dbeafe", color: "#1d4ed8" } : { backgroundColor: "#f8fafc", color: "#64748b" }}
+                    >
+                      {d.label.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Horario</label>
+                <div className="mt-1.5 grid grid-cols-6 gap-1 max-h-28 overflow-y-auto">
+                  {HORAS.map((h) => (
+                    <button
+                      key={h.value}
+                      onClick={() => setHora(h.value)}
+                      className="text-xs py-1.5 rounded-lg font-medium tabular-nums transition-colors"
+                      style={hora === h.value ? { backgroundColor: "#dbeafe", color: "#1d4ed8" } : { backgroundColor: "#f8fafc", color: "#64748b" }}
+                    >
+                      {h.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-xs text-slate-500">
+                  Relatorio enviado toda{" "}
+                  <span className="font-semibold text-slate-700">{DIAS_SEMANA.find(d => d.value === dia)?.label.toLowerCase()}</span>{" "}
+                  as <span className="font-semibold text-slate-700">{String(hora).padStart(2, "0")}:00</span> para o CFO.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!ativo && (
+            <div className="px-4 py-4 text-center">
+              <p className="text-xs text-slate-400">Envio automatico desativado</p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 bg-slate-50">
+            <button className="flex-1 h-8 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Cancelar</button>
+            <button className="flex-1 h-8 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 bg-blue-600">
+              <MSIcon name="check" style={{ fontSize: 13 }} /> Salvar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── EXPORT PDF BUTTON PREVIEW ──────────────────────────────────────────────
+
+function ExportPdfPreview() {
+  const [estado, setEstado] = useState<"idle" | "loading" | "erro">("idle");
+
+  const cycle = () => {
+    if (estado === "idle") {
+      setEstado("loading");
+      setTimeout(() => setEstado("erro"), 2000);
+      setTimeout(() => setEstado("idle"), 5000);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-slate-500">Botao com 3 estados: idle, loading (com spinner) e erro (auto-reverte em 3s). Clique para ver o ciclo.</p>
+      <div className="flex flex-wrap gap-4">
+        {/* Idle */}
+        <div className="flex flex-col items-center gap-2">
+          <button
+            onClick={cycle}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-sm text-white hover:opacity-90 transition-colors"
+            style={{ backgroundColor: "#E8533A" }}
+          >
+            <MSIcon name="picture_as_pdf" className="text-base" />
+            Exportar PDF
+          </button>
+          <span className="text-[10px] font-mono text-slate-400">idle</span>
+        </div>
+
+        {/* Loading */}
+        <div className="flex flex-col items-center gap-2">
+          <button
+            disabled
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-sm text-white opacity-60 cursor-not-allowed"
+            style={{ backgroundColor: "#E8533A" }}
+          >
+            <MSIcon name="progress_activity" className="text-base animate-spin" />
+            Gerando PDF...
+          </button>
+          <span className="text-[10px] font-mono text-slate-400">loading</span>
+        </div>
+
+        {/* Error */}
+        <div className="flex flex-col items-center gap-2">
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-sm bg-red-600 text-white hover:bg-red-700 transition-colors">
+            <MSIcon name="error" className="text-base" />
+            Erro ao gerar
+          </button>
+          <span className="text-[10px] font-mono text-slate-400">erro (3s)</span>
+        </div>
+      </div>
+
+      {/* Live demo */}
+      <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Live demo</span>
+          <button
+            onClick={cycle}
+            disabled={estado !== "idle"}
+            className={[
+              "inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm",
+              estado === "erro"
+                ? "bg-red-600 text-white hover:bg-red-700"
+                : "text-white disabled:opacity-60 disabled:cursor-not-allowed",
+            ].join(" ")}
+            style={estado !== "erro" ? { backgroundColor: "#E8533A" } : undefined}
+          >
+            {estado === "loading" ? (
+              <><MSIcon name="progress_activity" className="text-base animate-spin" /> Gerando PDF...</>
+            ) : estado === "erro" ? (
+              <><MSIcon name="error" className="text-base" /> Erro ao gerar</>
+            ) : (
+              <><MSIcon name="picture_as_pdf" className="text-base" /> Exportar PDF</>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── EXTRA ANIMATIONS ───────────────────────────────────────────────────────
+
+function ExtraAnimationsGrid() {
+  const [countKey, setCountKey] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+      {/* 1 — Modal scale-in */}
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="relative flex items-center justify-center w-20 h-20">
+          {modalVisible ? (
+            <div key={countKey} className="animate-modal-in bg-white rounded-xl shadow-lg border border-slate-200 w-16 h-14 flex items-center justify-center">
+              <MSIcon name="store" className="text-[20px] text-blue-600" />
+            </div>
+          ) : (
+            <div className="bg-black/20 rounded-xl w-16 h-14" />
+          )}
+        </div>
+        <div className="text-center">
+          <p className="text-xs font-semibold text-slate-700">Modal in</p>
+          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-modal-in</p>
+          <button onClick={() => { setModalVisible(true); setCountKey(k => k + 1); setTimeout(() => setModalVisible(false), 1500); }} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+        </div>
+      </div>
+
+      {/* 2 — Fade-in backdrop */}
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="relative flex items-center justify-center w-20 h-20">
+          <div key={countKey} className="animate-fade-in bg-black/30 rounded-xl w-16 h-14 flex items-center justify-center">
+            <MSIcon name="visibility" className="text-[20px] text-white" />
+          </div>
+        </div>
+        <div className="text-center">
+          <p className="text-xs font-semibold text-slate-700">Fade in</p>
+          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-fade-in</p>
+        </div>
+      </div>
+
+      {/* 3 — Staggered bounce dots (AI loading) */}
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex items-end justify-center gap-1.5 w-20 h-20">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s`, animationDuration: "0.6s" }}
+            />
+          ))}
+        </div>
+        <div className="text-center">
+          <p className="text-xs font-semibold text-slate-700">AI Loading</p>
+          <p className="text-[10px] font-mono text-slate-400 mt-0.5">staggered dots</p>
+        </div>
+      </div>
+
+      {/* 4 — CountUp bar fill */}
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center justify-center gap-3 w-20 h-20">
+          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div key={countKey} className="h-full bg-blue-600 rounded-full animate-countup-bar" style={{ "--bar-width": "75%" } as React.CSSProperties} />
+          </div>
+          <span className="text-xs font-mono text-slate-500">75%</span>
+        </div>
+        <div className="text-center">
+          <p className="text-xs font-semibold text-slate-700">Bar Fill</p>
+          <p className="text-[10px] font-mono text-slate-400 mt-0.5">countup-bar</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── NAV INDEX ────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
-  { id: "marca",      label: "Marca",       icon: "verified" },
-  { id: "cores",      label: "Cores",       icon: "palette" },
-  { id: "tipografia", label: "Tipografia",  icon: "text_fields" },
-  { id: "botoes",     label: "Botões",      icon: "smart_button" },
-  { id: "badges",     label: "Badges",      icon: "label" },
-  { id: "kpi",        label: "KPI Cards",   icon: "dashboard" },
-  { id: "toasts",     label: "Toasts",      icon: "notifications" },
-  { id: "inputs",     label: "Inputs",      icon: "input" },
-  { id: "tabela",     label: "Tabela",      icon: "table_chart" },
-  { id: "paginacao",  label: "Paginação",   icon: "pages" },
-  { id: "sidebar",    label: "Sidebar",     icon: "menu_open" },
-  { id: "animacoes",  label: "Animações",   icon: "motion_photos_on" },
-  { id: "icons",      label: "Ícones",      icon: "interests" },
-  { id: "graficos",   label: "Gráficos",    icon: "bar_chart" },
+  { id: "marca",        label: "Marca",         icon: "verified" },
+  { id: "cores",        label: "Cores",         icon: "palette" },
+  { id: "tipografia",   label: "Tipografia",    icon: "text_fields" },
+  { id: "botoes",       label: "Botões",        icon: "smart_button" },
+  { id: "badges",       label: "Badges",        icon: "label" },
+  { id: "kpi",          label: "KPI Cards",     icon: "dashboard" },
+  { id: "toasts",       label: "Toasts",        icon: "notifications" },
+  { id: "inputs",       label: "Inputs",        icon: "input" },
+  { id: "tabela",       label: "Tabela",        icon: "table_chart" },
+  { id: "paginacao",    label: "Paginação",     icon: "pages" },
+  { id: "sidebar",      label: "Sidebar",       icon: "menu_open" },
+  { id: "usermenu",     label: "User Menu",     icon: "person" },
+  { id: "modais",       label: "Modais",        icon: "open_in_new" },
+  { id: "retryloader",  label: "Retry Loader",  icon: "cloud_off" },
+  { id: "countup",      label: "CountUp",       icon: "speed" },
+  { id: "confidence",   label: "Confiança IA",  icon: "auto_awesome" },
+  { id: "fileupload",   label: "File Upload",   icon: "upload_file" },
+  { id: "toggle",       label: "Toggle",        icon: "toggle_on" },
+  { id: "agendamento",  label: "Agendamento",   icon: "schedule_send" },
+  { id: "exportpdf",    label: "Exportar PDF",  icon: "picture_as_pdf" },
+  { id: "animacoes",    label: "Animações",     icon: "motion_photos_on" },
+  { id: "icons",        label: "Ícones",        icon: "interests" },
+  { id: "graficos",     label: "Gráficos",      icon: "bar_chart" },
 ];
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 export function DesignSystemPage() {
-  const [activeSection, setActiveSection] = useState("cores");
+  const [activeSection, setActiveSection] = useState("marca");
+  const isScrolling = useRef(false);
+
+  useEffect(() => {
+    const ids = SECTIONS.map((s) => s.id);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrolling.current) return;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+            break;
+          }
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: 0 }
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const scrollTo = (id: string) => {
     setActiveSection(id);
+    isScrolling.current = true;
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => { isScrolling.current = false; }, 800);
   };
 
   return (
@@ -906,21 +1799,24 @@ export function DesignSystemPage() {
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(232, 83, 58, 0.08)" }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(232, 83, 58, 0.08)" }}>
               <SellersIcon size={22} />
             </div>
-            <div>
-              <span className="text-sm font-bold text-slate-800">Design System</span>
-              <span className="text-slate-300 mx-2">·</span>
-              <span className="text-sm text-slate-500">Sellers</span>
-            </div>
-            <span className="text-[10px] font-semibold text-white px-2 py-0.5 rounded-full" style={{ backgroundColor: "#E8533A" }}>v0.1</span>
+            <span className="text-sm font-bold text-slate-800 leading-none">Sellers</span>
+            <span className="w-px h-4 bg-slate-200" />
+            <span className="text-sm font-medium text-slate-500 leading-none">Design System</span>
+            <span className="text-[10px] font-semibold text-white px-2 py-0.5 rounded-full leading-none" style={{ backgroundColor: "#E8533A" }}>v0.2</span>
           </div>
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide" ref={(el) => {
+            if (!el) return;
+            const active = el.querySelector("[data-active='true']") as HTMLElement | null;
+            if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+          }}>
             {SECTIONS.map((s) => (
               <button
                 key={s.id}
+                data-active={activeSection === s.id}
                 onClick={() => scrollTo(s.id)}
                 className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                   activeSection === s.id
@@ -952,7 +1848,7 @@ export function DesignSystemPage() {
                 <Chip label="css" value="Tailwind CSS 3.3" />
                 <Chip label="ui" value="Radix Primitives" />
                 <Chip label="charts" value="Recharts 2.15" />
-                <Chip label="auth" value="Keycloak SSO" />
+
               </div>
             </div>
             {/* Color preview dots */}
@@ -1185,13 +2081,79 @@ export function DesignSystemPage() {
           </Section>
         </div>
 
-        {/* ── 11. ANIMAÇÕES ── */}
+        {/* ── 11. USER MENU ── */}
+        <div id="usermenu" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="User Menu" description="Menu dropdown do avatar com info do usuário, role badge (CFO vs Analista) e logout. Click-outside fecha.">
+            <UserMenuPreview />
+          </Section>
+        </div>
+
+        {/* ── 12. MODAIS ── */}
+        <div id="modais" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="Modais" description="Padrão de modal com backdrop, animação scale-in e duas variantes: Criar/Editar (azul) e Excluir (destructive vermelho).">
+            <ModalPreview />
+          </Section>
+        </div>
+
+        {/* ── 13. RETRY LOADER ── */}
+        <div id="retryloader" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="Retry Loader" description="Componente de loading com spinner, contador de tentativas e estado de erro com botão de retry.">
+            <RetryLoaderPreview />
+          </Section>
+        </div>
+
+        {/* ── 14. COUNTUP ── */}
+        <div id="countup" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="CountUp" description="Contador animado com requestAnimationFrame. Suporta formatação BRL e numérica. Usado nos KPI Cards do dashboard.">
+            <CountUpPreview />
+          </Section>
+        </div>
+
+        {/* ── 15. CONFIDENCE BADGE ── */}
+        <div id="confidence" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="Confiança IA (Badge)" description="Badge de confiança da extração de IA. 3 níveis de cor: verde (≥85%), amber (70–85%) e vermelho (<70%).">
+            <ConfidenceBadgePreview />
+          </Section>
+        </div>
+
+        {/* ── 16. FILE UPLOAD ── */}
+        <div id="fileupload" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="File Upload / Drag & Drop" description="Área de upload com drag-and-drop. 3 estados: vazio, com arquivo (+ extração IA) e drag-over.">
+            <FileUploadPreview />
+          </Section>
+        </div>
+
+        {/* ── 17. TOGGLE / SWITCH ── */}
+        <div id="toggle" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="Toggle / Switch" description="Toggle switch para ativar/desativar funcionalidades. Usado em despesa recorrente, agendamento e fornecedor.">
+            <TogglePreview />
+          </Section>
+        </div>
+
+        {/* ── 18. AGENDAMENTO ── */}
+        <div id="agendamento" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="Agendamento de Relatório" description="Dropdown interativo para agendar envio automático de relatório. Seletor de dia e hora com toggle de ativação.">
+            <AgendamentoPreview />
+          </Section>
+        </div>
+
+        {/* ── 19. EXPORT PDF ── */}
+        <div id="exportpdf" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+          <Section title="Botão Exportar PDF" description="Botão com 3 estados visuais: idle (coral), loading (spinner + disabled) e erro (vermelho, auto-reverte em 3s).">
+            <ExportPdfPreview />
+          </Section>
+        </div>
+
+        {/* ── 20. ANIMAÇÕES ── */}
         <div id="animacoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
-          <Section title="Animações" description="Animações de produção (drawer-in, toast-in) e utilities Tailwind (spin, pulse, ping, bounce, wave).">
+          <Section title="Animações" description="Animações de produção e showcase premium com o ícone Óculos Sellers. Dark stage, glow, spring physics, parallax e stroke draw.">
             <SubSection title="Produção — drawer-in & toast-in">
               <DrawerToastDemo />
             </SubSection>
-            <SubSection title="Tailwind — animate-*">
+            <SubSection title="Produção — modal-in, fade-in, countup-bar & AI dots">
+              <ExtraAnimationsGrid />
+            </SubSection>
+            <SubSection title="Óculos Showcase">
               <TailwindAnimsGrid />
             </SubSection>
           </Section>
@@ -1218,7 +2180,7 @@ export function DesignSystemPage() {
 
         {/* Footer */}
         <div className="text-center py-6 border-t border-slate-200 mt-4">
-          <p className="text-xs text-slate-400">Sellers Sistema Financeiro · Design System v0.1 · 2026</p>
+          <p className="text-xs text-slate-400">Sellers Sistema Financeiro · Design System v0.2 · 2026</p>
           <p className="text-[10px] text-slate-300 mt-1">Inter · Material Symbols Outlined · Tailwind CSS 3.3 · Radix UI</p>
         </div>
       </div>
