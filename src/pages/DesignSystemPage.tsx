@@ -103,8 +103,8 @@ function ColorSwatch({ hex, name, token, border = false }: { hex: string; name: 
       className={`group relative w-full rounded-xl overflow-hidden shadow-sm cursor-pointer transition-transform hover:scale-[1.02] ${border ? "border border-slate-200" : ""}`}
       title={`Copiar ${hex}`}
     >
-      <div className="h-20" style={{ backgroundColor: hex }} />
-      <div className="px-3 py-2 bg-white border-t border-slate-100 text-left">
+      <div className="h-20 border-b border-slate-200" style={{ backgroundColor: hex }} />
+      <div className="px-3 py-2 bg-white text-left">
         <p className="text-xs font-semibold text-slate-800">{name}</p>
         {token && <p className="text-[10px] font-mono text-slate-400 mt-0.5">{token}</p>}
         <p className="text-[10px] font-mono text-slate-500">{hex}</p>
