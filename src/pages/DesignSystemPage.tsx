@@ -663,9 +663,9 @@ export function DesignSystemPage() {
             <SubSection title="Semânticos (CSS vars HSL)">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <ColorDot hex="#ffffff"  label="--background"   border />
-                <ColorDot hex="#0d1117"  label="--foreground" />
+                <ColorDot hex="#020817"  label="--foreground" />
                 <ColorDot hex="#e2e8f0"  label="--border"       border />
-                <ColorDot hex="#3b82f6"  label="--primary" />
+                <ColorDot hex="#2563EB"  label="--primary" />
                 <ColorDot hex="#f1f5f9"  label="--secondary"    border />
                 <ColorDot hex="#f1f5f9"  label="--muted"        border />
                 <ColorDot hex="#ef4444"  label="--destructive" />
@@ -683,7 +683,7 @@ export function DesignSystemPage() {
                 <ColorDot hex="#fef2f2" label="red-50 · rejeitado"            border />
                 <ColorDot hex="#f5f3ff" label="violet-50 · fornec. pendente"  border />
                 <ColorDot hex="#f0f9ff" label="sky-50 · processando"          border />
-                <ColorDot hex="#f8fafc" label="slate-100 · cancelado"         border />
+                <ColorDot hex="#f1f5f9" label="slate-100 · cancelado"         border />
               </div>
             </SubSection>
 
