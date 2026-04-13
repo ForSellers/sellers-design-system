@@ -299,7 +299,8 @@ function SidebarPreview() {
   ];
 
   return (
-    <div className="flex rounded-xl overflow-hidden shadow-lg border border-slate-200" style={{ backgroundColor: "#0a1628", height: 340 }}>
+    <div className="flex rounded-xl overflow-x-auto overflow-y-hidden shadow-lg border border-slate-200" style={{ backgroundColor: "#0a1628", height: 340 }}>
+      <div className="flex min-w-[360px] w-full">
       {/* Compacto */}
       <div className="w-16 flex flex-col items-center py-4 gap-1" style={{ borderRight: `1px solid ${S.divider}` }}>
         <div className="w-10 h-10 rounded-xl overflow-hidden mb-3 flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
@@ -353,6 +354,7 @@ function SidebarPreview() {
           );
         })}
       </div>
+      </div>
     </div>
   );
 }
@@ -374,7 +376,7 @@ function PaginationPreview() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between gap-4 flex-wrap">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
       <div className="flex items-center gap-3">
         <button className="h-9 min-w-[130px] flex items-center justify-between gap-2 border border-slate-200 rounded-lg px-3 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50">
           <span className="inline-flex items-center gap-1.5">
@@ -493,7 +495,7 @@ function TypographyShowcase() {
     <div className="space-y-3">
       {rows.map((r) => (
         <div key={r.tag} className="flex items-baseline gap-4">
-          <span className="text-[10px] font-mono text-slate-400 w-32 flex-shrink-0">{r.tag}</span>
+          <span className="text-[10px] font-mono text-slate-400 w-20 sm:w-32 flex-shrink-0 truncate">{r.tag}</span>
           <span className={r.cls}>{r.sample}</span>
         </div>
       ))}
@@ -597,19 +599,29 @@ function DrawerToastDemo() {
   );
 }
 
-function OculosDraw({ size = 40, color = "#E8533A", className = "" }: { size?: number; color?: string; className?: string }) {
-  const sw = 1.5;
-  const dur = "4.5s";
-  const ease = "cubic-bezier(0.65,0,0.35,1)";
+interface SellersLoaderProps {
+  size?: number;
+  label?: string;
+}
+
+function OculosDraw({ size = 64, label, className = "" }: SellersLoaderProps & { className?: string }) {
+  const dur = "1.6s";
+  const ease = "cubic-bezier(0.4, 0, 0.2, 1)";
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <circle cx="6"  cy="12" r="4.5" stroke={color} strokeWidth={sw} strokeDasharray="30" strokeDashoffset="60"
-        style={{ animation: `oculos-draw-in ${dur} ${ease} infinite` }} />
-      <line x1="10.5" y1="12" x2="13.5" y2="12" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeDasharray="4" strokeDashoffset="60"
-        style={{ animation: `oculos-draw-in ${dur} ${ease} 0.3s infinite`, opacity: 0 }} />
-      <circle cx="18" cy="12" r="4.5" stroke={color} strokeWidth={sw} strokeDasharray="30" strokeDashoffset="60"
-        style={{ animation: `oculos-draw-in ${dur} ${ease} 0.15s infinite`, opacity: 0 }} />
-    </svg>
+    <div className={`flex flex-col items-center gap-2 ${className}`}>
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <circle cx="6" cy="12" r="4.5" stroke="#E8533A" strokeWidth="1.5"
+          strokeDasharray="29" strokeDashoffset="29"
+          style={{ animation: `sellers-draw ${dur} ${ease} infinite` }} />
+        <circle cx="18" cy="12" r="4.5" stroke="#E8533A" strokeWidth="1.5"
+          strokeDasharray="29" strokeDashoffset="29"
+          style={{ animation: `sellers-draw ${dur} ${ease} 0.18s infinite` }} />
+        <line x1="10.5" y1="12" x2="13.5" y2="12" stroke="#E8533A" strokeWidth="1.5" strokeLinecap="round"
+          strokeDasharray="4" strokeDashoffset="4"
+          style={{ animation: `sellers-draw-bridge ${dur} ${ease} 0.32s infinite` }} />
+      </svg>
+      {label && <span className="text-xs text-slate-500">{label}</span>}
+    </div>
   );
 }
 
@@ -721,7 +733,7 @@ function TailwindAnimsGrid() {
         {/* 8 · Draw */}
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20">
-            <OculosDraw size={36} color="#E8533A" />
+            <OculosDraw size={36} />
           </div>
           <div className="text-center">
             <p className="text-xs font-semibold text-slate-700">Draw</p>
@@ -1057,7 +1069,7 @@ function RetryLoaderPreview() {
         onClick={() => setState("retry")}
       >
         <div className="flex flex-col items-center justify-center py-6 gap-3">
-          <OculosDraw size={40} color="#E8533A" />
+          <OculosDraw size={40} />
           <span className="text-sm text-slate-500">Carregando...</span>
           <span className="text-xs text-slate-400">Tentativa 2 de 3...</span>
         </div>
@@ -1798,14 +1810,14 @@ export function DesignSystemPage() {
 
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(232, 83, 58, 0.08)" }}>
               <SellersIcon size={22} />
             </div>
             <span className="text-sm font-bold text-slate-800 leading-none">Sellers</span>
-            <span className="w-px h-4 bg-slate-200" />
-            <span className="text-sm font-medium text-slate-500 leading-none">Design System</span>
+            <span className="hidden sm:block w-px h-4 bg-slate-200" />
+            <span className="hidden sm:block text-sm font-medium text-slate-500 leading-none">Design System</span>
             <span className="text-[10px] font-semibold text-white px-2 py-0.5 rounded-full leading-none" style={{ backgroundColor: "#E8533A" }}>v0.2</span>
           </div>
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide" ref={(el) => {
@@ -1832,12 +1844,12 @@ export function DesignSystemPage() {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-2">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-2">
 
         {/* ── Hero ── */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-8 mb-6">
-          <div className="flex items-start justify-between gap-6">
-            <div>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-6 sm:py-8 mb-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-6">
+            <div className="min-w-0">
               <h1 className="text-2xl font-bold text-slate-800 mb-2">Sellers Design System</h1>
               <p className="text-sm text-slate-500 max-w-xl leading-relaxed">
                 Referência visual completa do sistema financeiro. Tokens de cor, tipografia, componentes e padrões de interface — tudo que você precisa para construir ou revisar a UI.
@@ -1868,7 +1880,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 0. MARCA ── */}
-        <div id="marca" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="marca" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Marca" description="Ícone de marca extraído do logo Sellers. Use em favicons, avatares, loading screens e qualquer contexto que precise só do símbolo.">
 
             <SubSection title="Ícone — tamanhos">
@@ -1946,10 +1958,10 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 1. CORES ── */}
-        <div id="cores" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="cores" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Cores" description="Paleta completa: brand tokens, semânticos, status e sidebar.">
             <SubSection title="Brand — Sellers">
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                 <ColorSwatch hex="#E8533A" name="Coral"        token="--brand-coral" />
                 <ColorSwatch hex="#FDF1EE" name="Coral Light"  token="--brand-coral-light" border />
                 <ColorSwatch hex="#F5C4B8" name="Coral Border" token="--brand-coral-border" border />
@@ -2002,21 +2014,21 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 2. TIPOGRAFIA ── */}
-        <div id="tipografia" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="tipografia" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Tipografia" description="Fonte Inter (400–700). Todos os tamanhos e pesos utilizados na interface.">
             <TypographyShowcase />
           </Section>
         </div>
 
         {/* ── 3. BOTÕES ── */}
-        <div id="botoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="botoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Botões" description="Primary coral, action blue, secondary, ghost, destructive e icon-only.">
             <ButtonShowcase />
           </Section>
         </div>
 
         {/* ── 4. BADGES ── */}
-        <div id="badges" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="badges" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Status Badges" description="Os 11 estados do workflow de despesas — espelho exato de DespesaTable.tsx.">
             <div className="flex flex-wrap gap-4">
               {Object.keys(STATUS_CONFIG).map((status) => (
@@ -2030,9 +2042,9 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 5. KPI CARDS ── */}
-        <div id="kpi" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="kpi" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="KPI Cards" description="Métricas do dashboard com accent lateral. 5 variantes de cor.">
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <KPICard label="Pendente aprv." value="14"  sublabel="aguardando financeiro"       icon="schedule"  color="amber"  />
               <KPICard label="Aguard. CFO"    value="3"   sublabel="alçada acima de R$5k"       icon="gpp_maybe" color="orange" />
               <KPICard label="Revisão manual" value="7"   sublabel="confiança IA < 85%"         icon="warning"   color="red"    />
@@ -2043,7 +2055,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 6. TOASTS ── */}
-        <div id="toasts" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="toasts" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Notificações (Toast)" description="4 níveis de severidade — success, info, warning, error. Com barra de progresso e auto-dismiss.">
             <div className="flex flex-wrap gap-5">
               {(["success","info","warning","error"] as const).map((lvl) => (
@@ -2054,98 +2066,98 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 7. INPUTS ── */}
-        <div id="inputs" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="inputs" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Inputs & Formulários" description="Default, preenchido, foco (ring blue), erro (ring red), disabled e textarea.">
             <InputPreview />
           </Section>
         </div>
 
         {/* ── 8. TABELA ── */}
-        <div id="tabela" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="tabela" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Tabela de Dados" description="Header com rótulos uppercase, linhas com hover sutil e badges de status inline.">
             <TablePreview />
           </Section>
         </div>
 
         {/* ── 9. PAGINAÇÃO ── */}
-        <div id="paginacao" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="paginacao" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Paginação" description="Seletor de tamanho de página + navegação interativa. Clique nos números.">
             <PaginationPreview />
           </Section>
         </div>
 
         {/* ── 10. SIDEBAR ── */}
-        <div id="sidebar" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="sidebar" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Sidebar" description="Dark theme #0a1628. Modo compacto (ícones) e expandido. Clique para trocar item ativo.">
             <SidebarPreview />
           </Section>
         </div>
 
         {/* ── 11. USER MENU ── */}
-        <div id="usermenu" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="usermenu" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="User Menu" description="Menu dropdown do avatar com info do usuário, role badge (CFO vs Analista) e logout. Click-outside fecha.">
             <UserMenuPreview />
           </Section>
         </div>
 
         {/* ── 12. MODAIS ── */}
-        <div id="modais" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="modais" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Modais" description="Padrão de modal com backdrop, animação scale-in e duas variantes: Criar/Editar (azul) e Excluir (destructive vermelho).">
             <ModalPreview />
           </Section>
         </div>
 
         {/* ── 13. RETRY LOADER ── */}
-        <div id="retryloader" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="retryloader" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Retry Loader" description="Componente de loading com spinner, contador de tentativas e estado de erro com botão de retry.">
             <RetryLoaderPreview />
           </Section>
         </div>
 
         {/* ── 14. COUNTUP ── */}
-        <div id="countup" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="countup" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="CountUp" description="Contador animado com requestAnimationFrame. Suporta formatação BRL e numérica. Usado nos KPI Cards do dashboard.">
             <CountUpPreview />
           </Section>
         </div>
 
         {/* ── 15. CONFIDENCE BADGE ── */}
-        <div id="confidence" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="confidence" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Confiança IA (Badge)" description="Badge de confiança da extração de IA. 3 níveis de cor: verde (≥85%), amber (70–85%) e vermelho (<70%).">
             <ConfidenceBadgePreview />
           </Section>
         </div>
 
         {/* ── 16. FILE UPLOAD ── */}
-        <div id="fileupload" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="fileupload" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="File Upload / Drag & Drop" description="Área de upload com drag-and-drop. 3 estados: vazio, com arquivo (+ extração IA) e drag-over.">
             <FileUploadPreview />
           </Section>
         </div>
 
         {/* ── 17. TOGGLE / SWITCH ── */}
-        <div id="toggle" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="toggle" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Toggle / Switch" description="Toggle switch para ativar/desativar funcionalidades. Usado em despesa recorrente, agendamento e fornecedor.">
             <TogglePreview />
           </Section>
         </div>
 
         {/* ── 18. AGENDAMENTO ── */}
-        <div id="agendamento" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="agendamento" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Agendamento de Relatório" description="Dropdown interativo para agendar envio automático de relatório. Seletor de dia e hora com toggle de ativação.">
             <AgendamentoPreview />
           </Section>
         </div>
 
         {/* ── 19. EXPORT PDF ── */}
-        <div id="exportpdf" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="exportpdf" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Botão Exportar PDF" description="Botão com 3 estados visuais: idle (coral), loading (spinner + disabled) e erro (vermelho, auto-reverte em 3s).">
             <ExportPdfPreview />
           </Section>
         </div>
 
         {/* ── 20. ANIMAÇÕES ── */}
-        <div id="animacoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="animacoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Animações" description="Animações de produção e showcase premium com o ícone Óculos Sellers. Dark stage, glow, spring physics, parallax e stroke draw.">
             <SubSection title="Produção — drawer-in & toast-in">
               <DrawerToastDemo />
@@ -2160,7 +2172,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 12. ÍCONES ── */}
-        <div id="icons" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="icons" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Ícones" description="Ícone custom Sellers (Óculos) e biblioteca Material Symbols Outlined. Clique para copiar.">
             <SubSection title="Custom — Óculos Sellers">
               <OculosIconShowcase />
@@ -2172,7 +2184,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 13. GRÁFICOS ── */}
-        <div id="graficos" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-7">
+        <div id="graficos" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Paleta de Gráficos" description="Sequência de cores usada em Recharts bar/line/pie charts.">
             <ChartPalettePreview />
           </Section>

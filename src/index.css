@@ -161,6 +161,27 @@
   100% { stroke-dashoffset: 60; opacity: 0.15; }
 }
 
+@keyframes sellers-draw {
+  0%   { stroke-dashoffset: 29; opacity: 0.3; }
+  60%  { stroke-dashoffset: 0;  opacity: 1; }
+  80%  { stroke-dashoffset: 0;  opacity: 1; }
+  100% { stroke-dashoffset: 0;  opacity: 0; }
+}
+
+@keyframes sellers-draw-bridge {
+  0%   { stroke-dashoffset: 4; opacity: 0; }
+  35%  { stroke-dashoffset: 4; opacity: 0; }
+  70%  { stroke-dashoffset: 0; opacity: 1; }
+  80%  { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes sellers-fade-loop {
+  0%   { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 @keyframes oculos-typewriter {
   0%   { clip-path: inset(0 100% 0 0); }
   30%  { clip-path: inset(0 0% 0 0);   }
