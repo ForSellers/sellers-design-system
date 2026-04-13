@@ -120,10 +120,12 @@ function ColorSwatch({ hex, name, token, border = false }: { hex: string; name: 
 
 function ColorDot({ hex, label, border = false }: { hex: string; label: string; border?: boolean }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className={`w-5 h-5 rounded-md flex-shrink-0 ${border ? "border border-slate-200" : ""}`} style={{ backgroundColor: hex }} />
-      <span className="text-xs text-slate-600">{label}</span>
-      <span className="text-[10px] font-mono text-slate-400 ml-auto">{hex}</span>
+    <div className="flex items-start gap-2 min-w-0">
+      <div className={`w-5 h-5 rounded-md flex-shrink-0 mt-0.5 ${border ? "border border-slate-200" : ""}`} style={{ backgroundColor: hex }} />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-slate-600 truncate leading-tight">{label}</p>
+        <p className="text-[10px] font-mono text-slate-400">{hex}</p>
+      </div>
     </div>
   );
 }
@@ -849,7 +851,7 @@ function OculosIconShowcase() {
       </div>
 
       {active && (
-        <p className="text-xs text-blue-600 font-mono">
+        <p className="text-xs text-blue-600 font-mono break-all">
           Copiado: {`<OculosIcon style={{ color: "${OCULOS_COLORS.find((v) => v.key === active)?.color}" }} />`}
         </p>
       )}
@@ -918,7 +920,7 @@ function IconsShowcase() {
         {filtered.length === 0 && <p className="text-sm text-slate-400">Nenhum ícone encontrado.</p>}
       </div>
       {active && (
-        <p className="text-xs text-blue-600 font-mono">"{active}" copiado para o clipboard</p>
+        <p className="text-xs text-blue-600 font-mono break-all">"{active}" copiado para o clipboard</p>
       )}
     </div>
   );
@@ -975,7 +977,7 @@ function UserMenuPreview() {
   }, []);
 
   return (
-    <div className="flex items-center justify-between gap-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
       {/* Demo */}
       <div ref={ref} className="relative">
         <button
@@ -1141,11 +1143,11 @@ function CountUpPreview() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <p className="text-xs text-slate-500">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms cubic ease-out. Clique em Replay.</p>
         <button
           onClick={() => setKey((k) => k + 1)}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+          className="self-start sm:self-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex-shrink-0"
         >
           <MSIcon name="refresh" className="text-[13px]" /> Replay
         </button>
@@ -1168,7 +1170,7 @@ function CountUpPreview() {
           <CountUpDemo to={3} type="number" className="text-2xl font-bold tabular-nums text-red-900" />
         </div>
       </div>
-      <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose">
+      <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose overflow-x-auto">
         <span className="text-slate-500 text-[10px] block mb-2 uppercase tracking-widest">Uso</span>
         <span className="text-blue-400">import</span>{" "}
         <span className="text-white">{"{ CountUp }"}</span>{" "}
@@ -1334,7 +1336,7 @@ function ConfidenceBadgePreview() {
           </div>
         ))}
       </div>
-      <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose">
+      <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose overflow-x-auto">
         <span className="text-slate-500 text-[10px] block mb-2 uppercase tracking-widest">Uso em DespesaDetail.tsx</span>
         <span className="text-pink-400">{"<ConfiancaBadge"}</span>{" "}
         <span className="text-yellow-300">value</span><span className="text-white">={"{despesa.confianca}"}</span>{" "}
@@ -1511,7 +1513,7 @@ function AgendamentoPreview() {
       </div>
 
       {open && (
-        <div className="w-72 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+        <div className="w-full max-w-[288px] bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
           {/* Toggle */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
@@ -1917,7 +1919,7 @@ export function DesignSystemPage() {
 
             <SubSection title="Arquivo SVG e componente React">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose">
+                <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose overflow-x-auto">
                   <span className="text-slate-500 text-[10px] block mb-2 uppercase tracking-widest">React component</span>
                   <span className="text-blue-400">import</span>{" "}
                   <span className="text-white">{"{ SellersIcon }"}</span>{" "}
@@ -1933,7 +1935,7 @@ export function DesignSystemPage() {
                   <span className="text-white">={"{48}"}</span>{" "}
                   <span className="text-pink-400">{"/>"}</span>
                 </div>
-                <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose">
+                <div className="bg-slate-900 rounded-xl px-5 py-4 font-mono text-xs text-slate-300 leading-loose overflow-x-auto">
                   <span className="text-slate-500 text-[10px] block mb-2 uppercase tracking-widest">HTML / img tag</span>
                   <span className="text-pink-400">{"<img"}</span>
                   <br/>
