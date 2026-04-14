@@ -97,17 +97,26 @@ function SellersIcon({ size = 32, className = "" }: { size?: number; className?:
 
 function ColorSwatch({ hex, name, token, border = false }: { hex: string; name: string; token?: string; border?: boolean }) {
   const [copied, setCopied] = useState(false);
+  // Decide se o texto sobreposto na cor deve ser claro ou escuro
+  const isDark = !border; // cores sem borda tendem a ser escuras
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(hex); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-      className="group relative w-full p-0 rounded-xl overflow-hidden shadow-sm border border-slate-200 cursor-pointer transition-transform hover:scale-[1.02]"
+      className="group relative w-full p-0 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 cursor-pointer transition-transform hover:scale-[1.02]"
       title={`Copiar ${hex}`}
     >
-      <div className="h-20 border-b border-slate-200" style={{ backgroundColor: hex }} />
-      <div className="px-3 py-2 bg-white text-left">
-        <p className="text-xs font-semibold text-slate-800">{name}</p>
-        {token && <p className="text-[10px] font-mono text-slate-400 mt-0.5">{token}</p>}
-        <p className="text-[10px] font-mono text-slate-500">{hex}</p>
+      {/* Color block with hex overlay */}
+      <div className="relative h-14 border-b border-slate-100 dark:border-slate-700" style={{ backgroundColor: hex }}>
+        <span
+          className="absolute bottom-1.5 right-2 text-[9px] font-mono opacity-70 leading-none"
+          style={{ color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.55)" }}
+        >
+          {hex}
+        </span>
+      </div>
+      <div className="px-3 py-2 bg-white dark:bg-slate-800 text-left">
+        <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-tight">{name}</p>
+        {token && <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5 truncate">{token}</p>}
       </div>
       {copied && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
@@ -1392,13 +1401,13 @@ function FileUploadPreview() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Empty state */}
-        <div>
+        <div className="flex flex-col">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Vazio</p>
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => { e.preventDefault(); setDragOver(false); setFile("NF-e_000456.pdf"); }}
-            className={`rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+            className={`flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
               dragOver ? "border-blue-400 bg-blue-50" : "border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-500"
             }`}
           >
@@ -1411,28 +1420,28 @@ function FileUploadPreview() {
         </div>
 
         {/* With file */}
-        <div>
+        <div className="flex flex-col">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Com arquivo</p>
-          <div className="rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50">
+          <div className="flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-700/50">
             <div className="flex items-center gap-3 px-4 py-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600" />
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 truncate">{file || "NF-e_000456.pdf"}</p>
-                <p className="text-xs text-slate-400">128 KB · PDF</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{file || "NF-e_000456.pdf"}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">128 KB · PDF</p>
               </div>
               <button onClick={() => setFile(null)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
                 <MSIcon name="close" className="text-[16px]" />
               </button>
             </div>
-            <div className="px-4 pb-3">
+            <div className="px-4 pb-4">
               <div className="flex items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
                   <MSIcon name="auto_awesome" style={{ fontSize: 10 }} />
                   IA
                 </span>
-                <span className="text-slate-500">Extraindo dados do documento...</span>
+                <span className="text-slate-500 dark:text-slate-400">Extraindo dados do documento...</span>
                 <MSIcon name="progress_activity" className="text-[14px] animate-spin text-blue-500" style={{ animationDuration: "1.1s" }} />
               </div>
             </div>
@@ -1528,26 +1537,28 @@ function AgendamentoPreview() {
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => setOpen(!open)}
-          className="inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors"
-          style={
-            ativo
-              ? { backgroundColor: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }
-              : { backgroundColor: "#f1f5f9", borderColor: "#cbd5e1", color: "#64748b" }
-          }
-        >
-          <MSIcon name={ativo ? "event_repeat" : "event_busy"} className="text-[13px]" />
-          {ativo ? `${DIAS_SEMANA.find(d => d.value === dia)?.label} as ${String(hora).padStart(2, "0")}:00` : "desativado"}
-          <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[12px] ml-0.5" />
-        </button>
-        <p className="text-xs text-slate-500">Trigger button do dropdown</p>
-      </div>
+    <div className="flex flex-col sm:flex-row gap-6 items-start">
+      {/* Left: interactive component */}
+      <div className="space-y-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpen(!open)}
+            className="inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors"
+            style={
+              ativo
+                ? { backgroundColor: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }
+                : { backgroundColor: "#f1f5f9", borderColor: "#cbd5e1", color: "#64748b" }
+            }
+          >
+            <MSIcon name={ativo ? "event_repeat" : "event_busy"} className="text-[13px]" />
+            {ativo ? `${DIAS_SEMANA.find(d => d.value === dia)?.label} as ${String(hora).padStart(2, "0")}:00` : "desativado"}
+            <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[12px] ml-0.5" />
+          </button>
+          <p className="text-xs text-slate-500">Trigger button</p>
+        </div>
 
-      {open && (
-        <div className="w-full max-w-[288px] bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+        {open && (
+          <div className="w-full max-w-[288px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden">
           {/* Toggle */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
@@ -1611,14 +1622,55 @@ function AgendamentoPreview() {
             </div>
           )}
 
-          <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 bg-slate-50">
-            <button className="flex-1 h-8 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Cancelar</button>
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
+            <button className="flex-1 h-8 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Cancelar</button>
             <button className="flex-1 h-8 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 bg-blue-600">
               <MSIcon name="check" style={{ fontSize: 13 }} /> Salvar
             </button>
           </div>
         </div>
-      )}
+        )}
+      </div>
+
+      {/* Right: specs */}
+      <div className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Especificacoes</p>
+        <div className="space-y-2.5">
+          <div className="flex items-start gap-2">
+            <MSIcon name="schedule" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Agendamento semanal</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Selecao de dia da semana + horario de envio do relatorio</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <MSIcon name="toggle_on" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Toggle de ativacao</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Habilitar ou desabilitar sem perder a configuracao salva</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <MSIcon name="mail" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Destinatario fixo</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Relatorio enviado automaticamente para o CFO</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <MSIcon name="expand_more" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Dropdown inline</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Abre abaixo do trigger sem modal ou overlay</p>
+            </div>
+          </div>
+        </div>
+        <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Largura: <span className="font-mono text-slate-600 dark:text-slate-300">288px</span> · Estado salvo via <span className="font-mono text-slate-600 dark:text-slate-300">localStorage</span>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1849,17 +1901,17 @@ function CalendarPreview() {
       <div className="flex flex-col sm:flex-row gap-4">
 
         {/* ── Calendar grid ── */}
-        <div className="flex-1 min-w-0 border border-slate-200 rounded-xl overflow-hidden bg-white">
+        <div className="flex-1 min-w-0 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800/50">
           {/* Month navigation */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             <button
               onClick={prevMonth}
-              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
-              <MSIcon name="chevron_left" className="text-slate-600" style={{ fontSize: 18 }} />
+              <MSIcon name="chevron_left" className="text-slate-600 dark:text-slate-400" style={{ fontSize: 18 }} />
             </button>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-800">
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {MONTH_NAMES[month]} {year}
               </span>
               {!isCurrentMonthYear && (
@@ -1874,18 +1926,18 @@ function CalendarPreview() {
             </div>
             <button
               onClick={nextMonth}
-              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
-              <MSIcon name="chevron_right" className="text-slate-600" style={{ fontSize: 18 }} />
+              <MSIcon name="chevron_right" className="text-slate-600 dark:text-slate-400" style={{ fontSize: 18 }} />
             </button>
           </div>
 
           {/* Day-of-week headers */}
-          <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+          <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             {DAY_NAMES.map((d) => (
               <div
                 key={d}
-                className="py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider"
+                className="py-2 text-center text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
               >
                 {d}
               </div>
@@ -1900,20 +1952,20 @@ function CalendarPreview() {
               const cellEvents = cell.isCurrentMonth
                 ? (effectiveEvents[cell.day] || [])
                 : [];
-              const borderLeft  = i % 7 !== 0 ? "border-l border-slate-100" : "";
-              const borderTop   = i >= 7      ? "border-t border-slate-100" : "";
+              const borderLeft  = i % 7 !== 0 ? "border-l border-slate-100 dark:border-slate-700/60" : "";
+              const borderTop   = i >= 7      ? "border-t border-slate-100 dark:border-slate-700/60" : "";
 
               return (
                 <button
                   key={i}
                   onClick={() => cell.isCurrentMonth && setSelectedDay(cell.day)}
                   disabled={!cell.isCurrentMonth}
-                  className={`relative flex flex-col items-center justify-start py-2 gap-0.5 min-h-[48px] transition-colors ${borderLeft} ${borderTop} ${
+                  className={`relative flex flex-col items-center justify-start py-2 gap-0.5 min-h-[44px] transition-colors ${borderLeft} ${borderTop} ${
                     !cell.isCurrentMonth
-                      ? "cursor-default bg-slate-50/50"
+                      ? "cursor-default bg-slate-50/50 dark:bg-slate-800/30"
                       : isSelected
-                      ? "bg-orange-50"
-                      : "hover:bg-slate-50 cursor-pointer"
+                      ? "bg-orange-50 dark:bg-orange-900/20"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-700/40 cursor-pointer"
                   }`}
                 >
                   <span
@@ -1923,18 +1975,14 @@ function CalendarPreview() {
                         : isTodayCell
                         ? "font-bold"
                         : !cell.isCurrentMonth
-                        ? "font-medium text-slate-300"
-                        : "font-medium text-slate-700"
+                        ? "font-medium text-slate-300 dark:text-slate-600"
+                        : "font-medium text-slate-700 dark:text-slate-300"
                     }`}
                     style={
                       isSelected
                         ? { backgroundColor: "#E8533A" }
                         : isTodayCell
-                        ? {
-                            color: "#2563EB",
-                            outline: "2px solid #2563EB",
-                            outlineOffset: "1px",
-                          }
+                        ? { color: "#2563EB", outline: "2px solid #2563EB", outlineOffset: "1px" }
                         : undefined
                     }
                   >
@@ -1949,9 +1997,7 @@ function CalendarPreview() {
                           key={j}
                           className="w-1 h-1 rounded-full"
                           style={{
-                            backgroundColor: isSelected
-                              ? "rgba(232,83,58,0.5)"
-                              : ev.color,
+                            backgroundColor: isSelected ? "rgba(232,83,58,0.5)" : ev.color,
                           }}
                         />
                       ))}
@@ -1964,49 +2010,41 @@ function CalendarPreview() {
         </div>
 
         {/* ── Event panel ── */}
-        <div className="w-full sm:w-56 border border-slate-200 rounded-xl overflow-hidden flex flex-col bg-white">
-          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="w-full sm:w-56 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden flex flex-col bg-white dark:bg-slate-800/50 self-stretch">
+          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {selectedDay
                 ? `${selectedDay} de ${MONTH_NAMES[month]}`
                 : "Selecione um dia"}
             </p>
           </div>
 
-          <div className="flex-1 p-3 space-y-2">
+          <div className="flex-1 p-3 space-y-2 overflow-y-auto">
             {selectedEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-24 gap-1.5">
-                <MSIcon
-                  name="event_busy"
-                  className="text-slate-300"
-                  style={{ fontSize: 28 }}
-                />
-                <p className="text-xs text-slate-400">Sem eventos</p>
+              <div className="flex flex-col items-center justify-center h-full min-h-[80px] gap-1.5">
+                <MSIcon name="event_busy" className="text-slate-300 dark:text-slate-600" style={{ fontSize: 28 }} />
+                <p className="text-xs text-slate-400 dark:text-slate-500">Sem eventos</p>
               </div>
             ) : (
               selectedEvents.map((ev, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
                   <span
                     className="w-2 h-2 rounded-full mt-0.5 flex-shrink-0"
                     style={{ backgroundColor: ev.color }}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-slate-700 leading-snug">
-                      {ev.label}
-                    </p>
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                      {ev.time}
-                    </p>
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-200 leading-snug">{ev.label}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{ev.time}</p>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50">
+          <div className="px-3 py-2.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             <button
               className="w-full h-7 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 transition-opacity hover:opacity-90"
               style={{ backgroundColor: "#E8533A" }}
@@ -2020,56 +2058,34 @@ function CalendarPreview() {
 
       {/* ── States legend ── */}
       <SubSection title="Estados dos dias">
-        <div className="flex flex-wrap gap-5 items-start">
+        <div className="flex flex-wrap gap-5 items-center">
           <div className="flex items-center gap-2">
-            <span
-              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold"
-              style={{
-                color: "#2563EB",
-                outline: "2px solid #2563EB",
-                outlineOffset: "1px",
-              }}
-            >
-              14
-            </span>
-            <span className="text-xs text-slate-500">Hoje</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold"
+              style={{ color: "#2563EB", outline: "2px solid #2563EB", outlineOffset: "1px" }}>14</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Hoje</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <span
-              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ backgroundColor: "#E8533A" }}
-            >
-              7
-            </span>
-            <span className="text-xs text-slate-500">Selecionado</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ backgroundColor: "#E8533A" }}>7</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Selecionado</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700">
-              22
-            </span>
-            <span className="text-xs text-slate-500">Normal</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700 dark:text-slate-300">22</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Normal</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-300">
-              30
-            </span>
-            <span className="text-xs text-slate-500">Outro mês</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-300 dark:text-slate-600">30</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Outro mês</span>
           </div>
-
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-center gap-0.5">
-              <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700">
-                18
-              </span>
+              <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700 dark:text-slate-300">18</span>
               <div className="flex gap-0.5">
                 <span className="w-1 h-1 rounded-full bg-blue-600" />
                 <span className="w-1 h-1 rounded-full" style={{ backgroundColor: "#E8533A" }} />
               </div>
             </div>
-            <span className="text-xs text-slate-500">Com eventos</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Com eventos</span>
           </div>
         </div>
       </SubSection>
@@ -2392,12 +2408,14 @@ export function DesignSystemPage() {
         {/* ── 5. KPI CARDS ── */}
         <div id="kpi" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="KPI Cards" description="Métricas do dashboard com accent lateral. 5 variantes de cor.">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              <KPICard label="Pendente aprv." value="14"  sublabel="aguardando financeiro"       icon="schedule"  color="amber"  />
-              <KPICard label="Aguard. CFO"    value="3"   sublabel="alçada acima de R$5k"       icon="gpp_maybe" color="orange" />
-              <KPICard label="Revisão manual" value="7"   sublabel="confiança IA < 85%"         icon="warning"   color="red"    />
-              <KPICard label="Fornec. pend."  value="2"   sublabel="CNPJ não cadastrado"        icon="store"     color="violet" />
-              <KPICard label="Pagas / mês"    value="31"  sublabel="total processado"           icon="paid"      color="blue"   />
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+              <KPICard label="Pendente aprv." value="14"  sublabel="aguardando financeiro"  icon="schedule"  color="amber"  />
+              <KPICard label="Aguard. CFO"    value="3"   sublabel="alçada acima de R$5k"  icon="gpp_maybe" color="orange" />
+              <KPICard label="Revisão manual" value="7"   sublabel="confiança IA < 85%"    icon="warning"   color="red"    />
+              <KPICard label="Fornec. pend."  value="2"   sublabel="CNPJ não cadastrado"   icon="store"     color="violet" />
+              <div className="col-span-2 lg:col-span-1">
+                <KPICard label="Pagas / mês" value="31" sublabel="total processado" icon="paid" color="blue" />
+              </div>
             </div>
           </Section>
         </div>
