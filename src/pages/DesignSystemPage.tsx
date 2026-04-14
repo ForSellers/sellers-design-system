@@ -5,9 +5,9 @@ import React, { useEffect, useRef, useState } from "react";
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
     <section className="space-y-5">
-      <div className="border-b border-slate-200 pb-3">
-        <h2 className="text-lg font-bold text-slate-800">{title}</h2>
-        {description && <p className="text-sm text-slate-500 mt-0.5">{description}</p>}
+      <div className="border-b border-slate-200 dark:border-slate-700 pb-3">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{title}</h2>
+        {description && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>}
       </div>
       {children}
     </section>
@@ -17,7 +17,7 @@ function Section({ title, description, children }: { title: string; description?
 function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{title}</h3>
       {children}
     </div>
   );
@@ -25,9 +25,9 @@ function SubSection({ title, children }: { title: string; children: React.ReactN
 
 function Chip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="inline-flex items-center gap-1.5 bg-slate-100 rounded-md px-2 py-1">
-      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
-      <span className="text-[11px] font-mono text-slate-700">{value}</span>
+    <div className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 rounded-md px-2 py-1">
+      <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{label}</span>
+      <span className="text-[11px] font-mono text-slate-700 dark:text-slate-300">{value}</span>
     </div>
   );
 }
@@ -97,17 +97,26 @@ function SellersIcon({ size = 32, className = "" }: { size?: number; className?:
 
 function ColorSwatch({ hex, name, token, border = false }: { hex: string; name: string; token?: string; border?: boolean }) {
   const [copied, setCopied] = useState(false);
+  // Decide se o texto sobreposto na cor deve ser claro ou escuro
+  const isDark = !border; // cores sem borda tendem a ser escuras
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(hex); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-      className="group relative w-full p-0 rounded-xl overflow-hidden shadow-sm border border-slate-200 cursor-pointer transition-transform hover:scale-[1.02]"
+      className="group relative w-full p-0 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 cursor-pointer transition-transform hover:scale-[1.02]"
       title={`Copiar ${hex}`}
     >
-      <div className="h-20 border-b border-slate-200" style={{ backgroundColor: hex }} />
-      <div className="px-3 py-2 bg-white text-left">
-        <p className="text-xs font-semibold text-slate-800">{name}</p>
-        {token && <p className="text-[10px] font-mono text-slate-400 mt-0.5">{token}</p>}
-        <p className="text-[10px] font-mono text-slate-500">{hex}</p>
+      {/* Color block with hex overlay */}
+      <div className="relative h-14 border-b border-slate-100 dark:border-slate-700" style={{ backgroundColor: hex }}>
+        <span
+          className="absolute bottom-1.5 right-2 text-[9px] font-mono opacity-70 leading-none"
+          style={{ color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.55)" }}
+        >
+          {hex}
+        </span>
+      </div>
+      <div className="px-3 py-2 bg-white dark:bg-slate-800 text-left">
+        <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-tight">{name}</p>
+        {token && <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5 truncate">{token}</p>}
       </div>
       {copied && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
@@ -121,10 +130,10 @@ function ColorSwatch({ hex, name, token, border = false }: { hex: string; name: 
 function ColorDot({ hex, label, border = false }: { hex: string; label: string; border?: boolean }) {
   return (
     <div className="flex items-start gap-2 min-w-0">
-      <div className={`w-5 h-5 rounded-md flex-shrink-0 mt-0.5 ${border ? "border border-slate-200" : ""}`} style={{ backgroundColor: hex }} />
+      <div className={`w-5 h-5 rounded-md flex-shrink-0 mt-0.5 ${border ? "border border-slate-200 dark:border-slate-600" : ""}`} style={{ backgroundColor: hex }} />
       <div className="min-w-0 flex-1">
-        <p className="text-xs text-slate-600 truncate leading-tight">{label}</p>
-        <p className="text-[10px] font-mono text-slate-400">{hex}</p>
+        <p className="text-xs text-slate-600 dark:text-slate-300 truncate leading-tight">{label}</p>
+        <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{hex}</p>
       </div>
     </div>
   );
@@ -134,17 +143,17 @@ function ColorDot({ hex, label, border = false }: { hex: string; label: string; 
 
 // Espelho exato de STATUS_CONFIG em DespesaTable.tsx
 const STATUS_CONFIG: Record<string, { label: string; icon: string; className: string; descricao: string }> = {
-  recebida:            { label: "Recebida",       icon: "move_to_inbox", className: "bg-slate-100 text-slate-600 border-slate-300",    descricao: "Email recebido. Aguardando processamento pelo agente de IA." },
-  extraida:            { label: "Extraída",        icon: "description",   className: "bg-blue-100 text-blue-700 border-blue-200",       descricao: "Dados extraídos com sucesso. Aguardando fila de aprovação." },
-  fornecedor_pendente: { label: "Forn. pendente", icon: "store",         className: "bg-violet-100 text-violet-700 border-violet-200", descricao: "CNPJ não cadastrado. Acesse o detalhe para cadastrar o fornecedor." },
-  processando_anexo:   { label: "Processando",    icon: "hourglass_top", className: "bg-sky-100 text-sky-700 border-sky-200",          descricao: "Agente de IA está extraindo os dados do documento." },
-  pendente_aprovacao:  { label: "Pendente",        icon: "schedule",      className: "bg-amber-100 text-amber-700 border-amber-200",    descricao: "Aguardando aprovação do financeiro." },
-  aguardando_cfo:      { label: "Ag. CFO",         icon: "pending",       className: "bg-orange-100 text-orange-700 border-orange-200", descricao: "Valor acima de R$ 5.000. Aguardando aprovação do CFO." },
-  revisao_manual:      { label: "Revisão",         icon: "warning",       className: "bg-red-100 text-red-700 border-red-200",          descricao: "Confiança da IA abaixo de 85%. Analista deve revisar os dados." },
-  aprovada:            { label: "Aprovada",         icon: "check_circle",  className: "bg-green-100 text-green-700 border-green-200",    descricao: "Aprovada. Será lançada automaticamente no OMIE." },
-  rejeitada:           { label: "Rejeitada",        icon: "cancel",        className: "bg-slate-200 text-slate-600 border-slate-300",    descricao: "Despesa rejeitada. Nenhuma ação necessária." },
-  lancada:             { label: "Lançada",          icon: "task_alt",      className: "bg-emerald-100 text-emerald-700 border-emerald-200", descricao: "Lançada com sucesso no OMIE. Processo concluído." },
-  erro_lancamento:     { label: "Erro OMIE",        icon: "error",         className: "bg-red-200 text-red-800 border-red-300",          descricao: "Falha no lançamento no OMIE. Será reprocessada automaticamente." },
+  recebida:            { label: "Recebida",       icon: "move_to_inbox", className: "bg-slate-100 text-slate-600 border-slate-300 dark:bg-transparent dark:text-slate-300 dark:border-slate-500",          descricao: "Email recebido. Aguardando processamento pelo agente de IA." },
+  extraida:            { label: "Extraída",        icon: "description",   className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-transparent dark:text-blue-400 dark:border-blue-500/70",           descricao: "Dados extraídos com sucesso. Aguardando fila de aprovação." },
+  fornecedor_pendente: { label: "Forn. pendente", icon: "store",         className: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-transparent dark:text-violet-400 dark:border-violet-500/70", descricao: "CNPJ não cadastrado. Acesse o detalhe para cadastrar o fornecedor." },
+  processando_anexo:   { label: "Processando",    icon: "hourglass_top", className: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-transparent dark:text-sky-400 dark:border-sky-500/70",                descricao: "Agente de IA está extraindo os dados do documento." },
+  pendente_aprovacao:  { label: "Pendente",        icon: "schedule",      className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-transparent dark:text-amber-400 dark:border-amber-500/70",      descricao: "Aguardando aprovação do financeiro." },
+  aguardando_cfo:      { label: "Ag. CFO",         icon: "pending",       className: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-transparent dark:text-orange-400 dark:border-orange-500/70", descricao: "Valor acima de R$ 5.000. Aguardando aprovação do CFO." },
+  revisao_manual:      { label: "Revisão",         icon: "warning",       className: "bg-red-100 text-red-700 border-red-200 dark:bg-transparent dark:text-red-400 dark:border-red-500/70",                descricao: "Confiança da IA abaixo de 85%. Analista deve revisar os dados." },
+  aprovada:            { label: "Aprovada",         icon: "check_circle",  className: "bg-green-100 text-green-700 border-green-200 dark:bg-transparent dark:text-green-400 dark:border-green-500/70",      descricao: "Aprovada. Será lançada automaticamente no OMIE." },
+  rejeitada:           { label: "Rejeitada",        icon: "cancel",        className: "bg-slate-200 text-slate-600 border-slate-300 dark:bg-transparent dark:text-slate-400 dark:border-slate-500/70",      descricao: "Despesa rejeitada. Nenhuma ação necessária." },
+  lancada:             { label: "Lançada",          icon: "task_alt",      className: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-transparent dark:text-emerald-400 dark:border-emerald-500/70", descricao: "Lançada com sucesso no OMIE. Processo concluído." },
+  erro_lancamento:     { label: "Erro OMIE",        icon: "error",         className: "bg-red-200 text-red-800 border-red-300 dark:bg-transparent dark:text-red-300 dark:border-red-400/70",                descricao: "Falha no lançamento no OMIE. Será reprocessada automaticamente." },
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -163,17 +172,17 @@ function StatusBadge({ status }: { status: string }) {
 type CardColor = "blue" | "amber" | "orange" | "red" | "violet";
 
 const CARD_COLORS: Record<CardColor, { border: string; bg: string; iconBg: string; label: string; value: string; sublabel: string; icon: string }> = {
-  blue:   { border: "border-l-blue-500",   bg: "bg-blue-50",   iconBg: "bg-blue-100",   label: "text-blue-600",   value: "text-blue-900",   sublabel: "text-blue-500",   icon: "text-blue-700" },
-  amber:  { border: "border-l-amber-500",  bg: "bg-amber-50",  iconBg: "bg-amber-100",  label: "text-amber-600",  value: "text-amber-900",  sublabel: "text-amber-500",  icon: "text-amber-700" },
-  orange: { border: "border-l-orange-500", bg: "bg-orange-50", iconBg: "bg-orange-100", label: "text-orange-600", value: "text-orange-900", sublabel: "text-orange-500", icon: "text-orange-700" },
-  red:    { border: "border-l-red-500",    bg: "bg-red-50",    iconBg: "bg-red-100",    label: "text-red-600",    value: "text-red-900",    sublabel: "text-red-500",    icon: "text-red-700" },
-  violet: { border: "border-l-violet-500", bg: "bg-violet-50", iconBg: "bg-violet-100", label: "text-violet-600", value: "text-violet-900", sublabel: "text-violet-500", icon: "text-violet-700" },
+  blue:   { border: "border-l-blue-500",   bg: "bg-blue-50 dark:bg-transparent",   iconBg: "bg-blue-100 dark:bg-blue-900/30",   label: "text-blue-600 dark:text-blue-400",   value: "text-blue-900 dark:text-blue-300",   sublabel: "text-blue-500 dark:text-blue-400",   icon: "text-blue-700 dark:text-blue-400" },
+  amber:  { border: "border-l-amber-500",  bg: "bg-amber-50 dark:bg-transparent",  iconBg: "bg-amber-100 dark:bg-amber-900/30",  label: "text-amber-600 dark:text-amber-400",  value: "text-amber-900 dark:text-amber-300",  sublabel: "text-amber-500 dark:text-amber-400",  icon: "text-amber-700 dark:text-amber-400" },
+  orange: { border: "border-l-orange-500", bg: "bg-orange-50 dark:bg-transparent", iconBg: "bg-orange-100 dark:bg-orange-900/30", label: "text-orange-600 dark:text-orange-400", value: "text-orange-900 dark:text-orange-300", sublabel: "text-orange-500 dark:text-orange-400", icon: "text-orange-700 dark:text-orange-400" },
+  red:    { border: "border-l-red-500",    bg: "bg-red-50 dark:bg-transparent",    iconBg: "bg-red-100 dark:bg-red-900/30",    label: "text-red-600 dark:text-red-400",    value: "text-red-900 dark:text-red-300",    sublabel: "text-red-500 dark:text-red-400",    icon: "text-red-700 dark:text-red-400" },
+  violet: { border: "border-l-violet-500", bg: "bg-violet-50 dark:bg-transparent", iconBg: "bg-violet-100 dark:bg-violet-900/30", label: "text-violet-600 dark:text-violet-400", value: "text-violet-900 dark:text-violet-300", sublabel: "text-violet-500 dark:text-violet-400", icon: "text-violet-700 dark:text-violet-400" },
 };
 
 function KPICard({ label, value, sublabel, icon, color }: { label: string; value: string; sublabel: string; icon: string; color: CardColor }) {
   const c = CARD_COLORS[color];
   return (
-    <div className={`rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 ${c.border} ${c.bg}`}>
+    <div className={`rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-4 py-3 border-l-4 ${c.border} ${c.bg}`}>
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className={`text-[11px] font-semibold uppercase tracking-wider truncate ${c.label}`}>{label}</p>
@@ -191,30 +200,30 @@ function KPICard({ label, value, sublabel, icon, color }: { label: string; value
 // ─── TOAST PREVIEW ───────────────────────────────────────────────────────────
 
 const TOAST_CONFIG = {
-  error:   { icon: "cloud_off",    iconBg: "bg-red-100",     iconColor: "text-red-600",    border: "border-red-200",    bar: "bg-red-400",    label: "Erro",       title: "Falha ao conectar ao OMIE",  body: "Não foi possível sincronizar. Tentativas em andamento." },
-  warning: { icon: "warning",      iconBg: "bg-amber-100",   iconColor: "text-amber-600",  border: "border-amber-200",  bar: "bg-amber-400",  label: "Atenção",    title: "Confiança IA abaixo de 85%", body: "Despesa requer revisão manual antes de prosseguir." },
-  info:    { icon: "info",         iconBg: "bg-blue-100",    iconColor: "text-blue-600",   border: "border-blue-200",   bar: "bg-blue-400",   label: "Informação", title: "Email recebido",             body: "Nova despesa detectada e enfileirada para processamento." },
-  success: { icon: "check_circle", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", border: "border-emerald-200", bar: "bg-emerald-400", label: "Sucesso",   title: "Despesa aprovada",           body: "A despesa foi enviada ao OMIE com sucesso." },
+  error:   { icon: "cloud_off",    iconBg: "bg-red-100 dark:bg-red-900/30",     iconColor: "text-red-600 dark:text-red-400",    border: "border-red-200 dark:border-red-500/60",    bar: "bg-red-400 dark:bg-red-500",    label: "Erro",       title: "Falha ao conectar ao OMIE",  body: "Não foi possível sincronizar. Tentativas em andamento." },
+  warning: { icon: "warning",      iconBg: "bg-amber-100 dark:bg-amber-900/30", iconColor: "text-amber-600 dark:text-amber-400", border: "border-amber-200 dark:border-amber-500/60", bar: "bg-amber-400 dark:bg-amber-500", label: "Atenção",    title: "Confiança IA abaixo de 85%", body: "Despesa requer revisão manual antes de prosseguir." },
+  info:    { icon: "info",         iconBg: "bg-blue-100 dark:bg-blue-900/30",   iconColor: "text-blue-600 dark:text-blue-400",   border: "border-blue-200 dark:border-blue-500/60",   bar: "bg-blue-400 dark:bg-blue-500",  label: "Informação", title: "Email recebido",             body: "Nova despesa detectada e enfileirada para processamento." },
+  success: { icon: "check_circle", iconBg: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-500/60", bar: "bg-emerald-400 dark:bg-emerald-500", label: "Sucesso", title: "Despesa aprovada", body: "A despesa foi enviada ao OMIE com sucesso." },
 };
 
 function ToastPreview({ level }: { level: keyof typeof TOAST_CONFIG }) {
   const cfg = TOAST_CONFIG[level];
   return (
     <div className="flex flex-col gap-1.5">
-      <div className={`bg-white border ${cfg.border} rounded-xl shadow-lg overflow-hidden w-72`}>
+      <div className={`bg-white dark:bg-slate-900 border ${cfg.border} rounded-xl shadow-lg overflow-hidden w-72`}>
         <div className="flex gap-3 px-4 py-3.5">
           <div className={`flex-shrink-0 w-8 h-8 rounded-lg ${cfg.iconBg} flex items-center justify-center`}>
             <MSIcon name={cfg.icon} className={`text-[18px] ${cfg.iconColor}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'OPSZ' 20" }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 leading-tight">{cfg.title}</p>
-            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{cfg.body}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{cfg.title}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{cfg.body}</p>
           </div>
-          <button className="flex-shrink-0 self-start text-slate-300 hover:text-slate-500">
+          <button className="flex-shrink-0 self-start text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400">
             <MSIcon name="close" className="text-[16px]" />
           </button>
         </div>
-        <div className="h-0.5 bg-slate-100">
+        <div className="h-0.5 bg-slate-100 dark:bg-slate-800">
           <div className={`h-full ${cfg.bar}`} style={{ width: "60%" }} />
         </div>
       </div>
@@ -234,12 +243,12 @@ function TablePreview() {
     { id: "DES-005", fornecedor: "Correios",            categoria: "Logística",      valor: "R$ 540,00",    status: "lancada" },
   ];
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-      <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+    <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+      <div className="px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MSIcon name="receipt_long" className="text-[18px] text-slate-400" />
-          <span className="text-sm font-semibold text-slate-700">Despesas</span>
-          <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-medium">{rows.length} registros</span>
+          <MSIcon name="receipt_long" className="text-[18px] text-slate-400 dark:text-slate-500" />
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Despesas</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full font-medium">{rows.length} registros</span>
         </div>
         <button
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-white rounded-lg px-3 py-2"
@@ -252,21 +261,21 @@ function TablePreview() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
-              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">ID</th>
-              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Fornecedor</th>
-              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Categoria</th>
-              <th className="text-right px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Valor</th>
-              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>
+            <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
+              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">ID</th>
+              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Fornecedor</th>
+              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Categoria</th>
+              <th className="text-right px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Valor</th>
+              <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {rows.map((row) => (
-              <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                <td className="px-5 py-3 font-mono text-xs text-slate-400">{row.id}</td>
-                <td className="px-5 py-3 text-sm font-medium text-slate-800">{row.fornecedor}</td>
-                <td className="px-5 py-3 text-sm text-slate-500">{row.categoria}</td>
-                <td className="px-5 py-3 text-sm font-semibold text-slate-800 text-right tabular-nums">{row.valor}</td>
+              <tr key={row.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-700/30 transition-colors">
+                <td className="px-5 py-3 font-mono text-xs text-slate-400 dark:text-slate-500">{row.id}</td>
+                <td className="px-5 py-3 text-sm font-medium text-slate-800 dark:text-slate-100">{row.fornecedor}</td>
+                <td className="px-5 py-3 text-sm text-slate-500 dark:text-slate-400">{row.categoria}</td>
+                <td className="px-5 py-3 text-sm font-semibold text-slate-800 dark:text-slate-100 text-right tabular-nums">{row.valor}</td>
                 <td className="px-5 py-3"><StatusBadge status={row.status} /></td>
               </tr>
             ))}
@@ -367,7 +376,7 @@ function PaginationPreview() {
   const [page, setPage] = useState(3);
   const totalPages = 8;
   const btnBase = "inline-flex items-center justify-center min-w-[32px] h-8 px-1.5 rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
-  const btnDefault = `${btnBase} border-slate-200 text-slate-600 bg-white hover:bg-slate-50`;
+  const btnDefault = `${btnBase} border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700`;
   const btnActive  = `${btnBase} border-blue-600 bg-blue-600 text-white`;
 
   const getPages = () => {
@@ -378,16 +387,16 @@ function PaginationPreview() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+    <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
       <div className="flex items-center gap-3">
-        <button className="h-9 min-w-[130px] flex items-center justify-between gap-2 border border-slate-200 rounded-lg px-3 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50">
+        <button className="h-9 min-w-[130px] flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-600 rounded-lg px-3 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
           <span className="inline-flex items-center gap-1.5">
-            <MSIcon name="format_list_numbered" className="text-[16px] text-slate-400" />
+            <MSIcon name="format_list_numbered" className="text-[16px] text-slate-400 dark:text-slate-500" />
             10 por página
           </span>
-          <MSIcon name="expand_more" className="text-[18px] text-slate-400" />
+          <MSIcon name="expand_more" className="text-[18px] text-slate-400 dark:text-slate-500" />
         </button>
-        <span className="text-xs font-medium text-slate-500 tabular-nums">21–30 de 78 registros</span>
+        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums">21–30 de 78 registros</span>
       </div>
       <div className="flex items-center gap-1">
         <button onClick={() => setPage(1)} disabled={page <= 1} className={btnDefault}><MSIcon name="first_page" className="text-[18px]" /></button>
@@ -410,32 +419,33 @@ function PaginationPreview() {
 
 function InputPreview() {
   const base = "w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors";
+  const lbl = "block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider";
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="space-y-1">
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Default</label>
-        <input className={`${base} border-slate-200 text-slate-800 placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white`} placeholder="ex.: NF-e 000456" />
+        <label className={lbl}>Default</label>
+        <input className={`${base} border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 bg-white dark:bg-slate-800`} placeholder="ex.: NF-e 000456" />
       </div>
       <div className="space-y-1">
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Preenchido</label>
-        <input className={`${base} border-slate-200 text-slate-800 bg-white`} defaultValue="Shopee Brasil LTDA" readOnly />
+        <label className={lbl}>Preenchido</label>
+        <input className={`${base} border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800`} defaultValue="Shopee Brasil LTDA" readOnly />
       </div>
       <div className="space-y-1">
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Foco</label>
-        <input className={`${base} border-blue-400 ring-2 ring-blue-100 bg-white text-slate-800`} defaultValue="editando campo..." readOnly />
+        <label className={lbl}>Foco</label>
+        <input className={`${base} border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100`} defaultValue="editando campo..." readOnly />
       </div>
       <div className="space-y-1">
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Erro</label>
-        <input className={`${base} border-red-300 ring-2 ring-red-100 bg-white text-slate-800`} defaultValue="valor inválido" readOnly />
+        <label className={lbl}>Erro</label>
+        <input className={`${base} border-red-300 ring-2 ring-red-100 dark:ring-red-900/40 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100`} defaultValue="valor inválido" readOnly />
         <p className="text-xs text-red-500 flex items-center gap-1"><MSIcon name="error" className="text-[13px]" />Campo obrigatório</p>
       </div>
       <div className="space-y-1">
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Disabled</label>
-        <input className={`${base} border-slate-100 text-slate-300 bg-slate-50 cursor-not-allowed`} defaultValue="somente leitura" disabled />
+        <label className={lbl}>Disabled</label>
+        <input className={`${base} border-slate-100 dark:border-slate-700 text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed`} defaultValue="somente leitura" disabled />
       </div>
       <div className="space-y-1">
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Textarea</label>
-        <textarea className={`${base} border-slate-200 text-slate-800 placeholder:text-slate-300 bg-white resize-none`} rows={3} placeholder="Observações sobre a despesa..." />
+        <label className={lbl}>Textarea</label>
+        <textarea className={`${base} border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 bg-white dark:bg-slate-800 resize-none`} rows={3} placeholder="Observações sobre a despesa..." />
       </div>
     </div>
   );
@@ -453,23 +463,23 @@ function ButtonShowcase() {
         <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
           <MSIcon name="check" className="text-[16px]" /> Aprovar
         </button>
-        <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+        <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
           <MSIcon name="filter_list" className="text-[16px]" /> Filtros
         </button>
-        <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+        <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           <MSIcon name="download" className="text-[16px]" /> Exportar
         </button>
         <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors">
           <MSIcon name="delete" className="text-[16px]" /> Excluir
         </button>
-        <button className="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-400 border border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700 transition-colors">
+        <button className="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
           <MSIcon name="more_vert" className="text-[18px]" />
         </button>
         <button disabled className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white opacity-40 cursor-not-allowed" style={{ backgroundColor: "#E8533A" }}>
           <MSIcon name="send" className="text-[16px]" /> Enviar
         </button>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-center font-semibold uppercase tracking-widest text-slate-400">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-center font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
         <span>Primary · coral</span>
         <span>Action · blue</span>
         <span>Secondary · outline</span>
@@ -482,25 +492,58 @@ function ButtonShowcase() {
 // ─── TYPOGRAPHY ──────────────────────────────────────────────────────────────
 
 function TypographyShowcase() {
-  const rows = [
-    { tag: "text-2xl bold",           sample: "R$ 48.750,00",                               cls: "text-2xl font-bold text-slate-800" },
-    { tag: "text-xl semibold",        sample: "Contas a Pagar",                             cls: "text-xl font-semibold text-slate-800" },
-    { tag: "text-lg semibold",        sample: "Despesa NF-e 000456",                        cls: "text-lg font-semibold text-slate-800" },
-    { tag: "text-base medium",        sample: "Shopee Brasil Ltda",                         cls: "text-base font-medium text-slate-800" },
-    { tag: "text-sm regular",         sample: "Descrição da despesa com detalhes da NF.",   cls: "text-sm text-slate-600" },
-    { tag: "text-xs medium",          sample: "Atualizado há 3 horas · financeiro@sellers", cls: "text-xs font-medium text-slate-500" },
-    { tag: "text-[11px] caps",        sample: "Pendente Aprovação",                         cls: "text-[11px] font-semibold uppercase tracking-wider text-slate-400" },
-    { tag: "font-mono",               sample: "DES-2024-001 · 45.678.123/0001-99",         cls: "font-mono text-sm text-slate-600" },
-    { tag: "tabular-nums",            sample: "1.234 · 56.789 · R$ 99.999,00",             cls: "text-sm tabular-nums text-slate-700" },
+  const WEIGHTS = [
+    { w: "400", cls: "font-normal",   label: "Regular",  sample: "Despesa de marketplace — NF-e 000456" },
+    { w: "500", cls: "font-medium",   label: "Medium",   sample: "Shopee Brasil Ltda · CNPJ 45.678/0001" },
+    { w: "600", cls: "font-semibold", label: "Semibold", sample: "Aprovação pendente do CFO" },
+    { w: "700", cls: "font-bold",     label: "Bold",     sample: "R$ 48.750,00" },
   ];
+
+  const SCALE = [
+    { tag: "text-2xl · 700", sample: "R$ 48.750,00",                               cls: "text-2xl font-bold text-slate-800 dark:text-slate-100" },
+    { tag: "text-xl · 600",  sample: "Contas a Pagar",                             cls: "text-xl font-semibold text-slate-800 dark:text-slate-100" },
+    { tag: "text-lg · 600",  sample: "Despesa NF-e 000456",                        cls: "text-lg font-semibold text-slate-800 dark:text-slate-100" },
+    { tag: "text-base · 500",sample: "Shopee Brasil Ltda",                         cls: "text-base font-medium text-slate-800 dark:text-slate-100" },
+    { tag: "text-sm · 400",  sample: "Descrição da despesa com detalhes da NF.",   cls: "text-sm text-slate-600 dark:text-slate-300" },
+    { tag: "text-xs · 500",  sample: "Atualizado há 3 horas · financeiro@sellers", cls: "text-xs font-medium text-slate-500 dark:text-slate-400" },
+    { tag: "text-[11px] caps",sample: "Pendente Aprovação",                        cls: "text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500" },
+    { tag: "font-mono · 400",sample: "DES-2024-001 · 45.678.123/0001-99",         cls: "font-mono text-sm text-slate-600 dark:text-slate-300" },
+    { tag: "tabular-nums",   sample: "1.234 · 56.789 · R$ 99.999,00",             cls: "text-sm tabular-nums text-slate-700 dark:text-slate-200" },
+  ];
+
   return (
-    <div className="space-y-3">
-      {rows.map((r) => (
-        <div key={r.tag} className="flex items-baseline gap-4">
-          <span className="text-[10px] font-mono text-slate-400 w-20 sm:w-32 flex-shrink-0 truncate">{r.tag}</span>
-          <span className={r.cls}>{r.sample}</span>
+    <div className="space-y-6">
+
+      {/* Pesos Inter */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Pesos — Inter 400 a 700</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {WEIGHTS.map((w) => (
+            <div
+              key={w.w}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/50"
+            >
+              <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 w-8 flex-shrink-0">{w.w}</span>
+              <span className={`text-sm text-slate-800 dark:text-slate-100 leading-snug truncate ${w.cls}`}>{w.sample}</span>
+              <span className="ml-auto text-[10px] font-medium text-slate-400 dark:text-slate-500 flex-shrink-0">{w.label}</span>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
+
+      {/* Escala de tamanhos */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Escala de tamanhos</h3>
+        <div className="space-y-2.5">
+          {SCALE.map((r) => (
+            <div key={r.tag} className="flex items-baseline gap-4">
+              <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 w-24 sm:w-36 flex-shrink-0 truncate">{r.tag}</span>
+              <span className={r.cls}>{r.sample}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -521,11 +564,11 @@ function DrawerToastDemo() {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
       {/* drawer-in */}
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-3">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-700">Drawer slide-in</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-drawer-in · 0.25s · cubic-bezier(0.16,1,0.3,1)</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Drawer slide-in</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-drawer-in · 0.25s · cubic-bezier(0.16,1,0.3,1)</p>
           </div>
           <button
             onClick={openDrawer}
@@ -535,7 +578,7 @@ function DrawerToastDemo() {
             <MSIcon name="add" className="text-[13px]" /> Abrir
           </button>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 h-32 relative overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 h-32 relative overflow-hidden shadow-sm">
           {!drawerOpen && (
             <div className="absolute inset-0 flex items-center justify-center">
               <p className="text-xs text-slate-300">← clique em Abrir</p>
@@ -562,11 +605,11 @@ function DrawerToastDemo() {
       </div>
 
       {/* toast-in */}
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-3">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-700">Toast notification</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-toast-in · 0.22s · translateX + opacity</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Toast notification</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-toast-in · 0.22s · translateX + opacity</p>
           </div>
           <button
             onClick={() => setToastKey((k) => k + 1)}
@@ -635,20 +678,20 @@ function TailwindAnimsGrid() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
 
         {/* 1 — Spin */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20">
             <div className="animate-oculos-orbit" style={{ animationDuration: "2.2s" }}>
               <OculosIcon size={24} style={{ color: "#E8533A" }} />
             </div>
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Spin</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-spin</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Spin</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-spin</p>
           </div>
         </div>
 
         {/* 2 — Pulse */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex flex-col items-center justify-center w-20 h-20 gap-2">
             <OculosIcon size={28} className="animate-pulse" style={{ color: "#2563EB" }} />
             <div className="w-12 h-1.5 rounded-full bg-blue-100 overflow-hidden">
@@ -656,13 +699,13 @@ function TailwindAnimsGrid() {
             </div>
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Pulse</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-pulse</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Pulse</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-pulse</p>
           </div>
         </div>
 
         {/* 3 — Ping */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="relative flex items-center justify-center w-20 h-20">
             <span
               className="absolute inline-flex w-14 h-14 rounded-full animate-ping"
@@ -671,8 +714,8 @@ function TailwindAnimsGrid() {
             <OculosIcon size={28} style={{ color: "#E8533A" }} />
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Ping</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-ping</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Ping</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-ping</p>
           </div>
         </div>
 
@@ -688,7 +731,7 @@ function TailwindAnimsGrid() {
         </div>
 
         {/* 5 — Wave (staggered) */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-end justify-center gap-2 w-20 h-20">
             {[
               { delay: "0s",    color: "#E8533A" },
@@ -701,8 +744,8 @@ function TailwindAnimsGrid() {
             ))}
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Wave</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">staggered delay</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Wave</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">staggered delay</p>
           </div>
         </div>
       </div>
@@ -711,59 +754,59 @@ function TailwindAnimsGrid() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
 
         {/* 6 · Float */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20">
             <OculosIcon size={32} className="animate-oculos-float" style={{ color: "#E8533A" }} />
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Float</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">translateY · rotate</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Float</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">translateY · rotate</p>
           </div>
         </div>
 
         {/* 7 · Morph */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20">
             <OculosIcon size={32} className="animate-oculos-morph" style={{ color: "#2563EB" }} />
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Morph</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">scale · rotate · spring</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Morph</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">scale · rotate · spring</p>
           </div>
         </div>
 
         {/* 8 · Draw */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20">
             <OculosDraw size={36} />
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Draw</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">stroke-dashoffset</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Draw</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">stroke-dashoffset</p>
           </div>
         </div>
 
         {/* 9 · Glitch */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20 relative">
             <OculosIcon size={32} className="absolute animate-oculos-glitch" style={{ color: "#38bdf8", opacity: 0.5 }} />
             <OculosIcon size={32} className="absolute animate-oculos-glitch" style={{ color: "#E8533A", opacity: 0.5, animationDelay: "0.05s" }} />
             <OculosIcon size={32} className="animate-oculos-glitch" style={{ color: "#001960" }} />
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Glitch</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">hue-rotate · translate</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Glitch</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">hue-rotate · translate</p>
           </div>
         </div>
 
         {/* 10 · Reveal */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
           <div className="flex items-center justify-center w-20 h-20">
             <OculosIcon size={36} className="animate-oculos-typewriter" style={{ color: "#001960" }} />
           </div>
           <div className="text-center">
-            <p className="text-xs font-semibold text-slate-700">Reveal</p>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">clip-path · inset</p>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Reveal</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">clip-path · inset</p>
           </div>
         </div>
       </div>
@@ -896,7 +939,7 @@ function IconsShowcase() {
   return (
     <div className="space-y-3">
       <input
-        className="w-full max-w-xs border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white"
+        className="w-full max-w-xs border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 bg-white dark:bg-slate-800"
         placeholder="Buscar ícone..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -909,12 +952,12 @@ function IconsShowcase() {
             title={name}
             className={`inline-flex flex-col items-center gap-1 p-3 rounded-xl border transition-all ${
               active === name
-                ? "border-blue-300 bg-blue-50 shadow-sm"
-                : "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300"
+                ? "border-blue-300 bg-blue-50 dark:bg-blue-900/30 shadow-sm"
+                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
             }`}
           >
-            <MSIcon name={name} className="text-[22px] text-slate-600" />
-            <span className="text-[9px] font-mono text-slate-400 max-w-[72px] text-center leading-tight">{name}</span>
+            <MSIcon name={name} className="text-[22px] text-slate-600 dark:text-slate-300" />
+            <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500 max-w-[72px] text-center leading-tight">{name}</span>
           </button>
         ))}
         {filtered.length === 0 && <p className="text-sm text-slate-400">Nenhum ícone encontrado.</p>}
@@ -951,10 +994,10 @@ function ChartPalettePreview() {
       </div>
       <div className="flex flex-wrap gap-2">
         {CHART_COLORS.map((c) => (
-          <div key={c.hex} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-100 bg-slate-50">
+          <div key={c.hex} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
             <div className="w-4 h-4 rounded-md" style={{ backgroundColor: c.hex }} />
-            <span className="text-[10px] font-mono text-slate-500">{c.label}</span>
-            <span className="text-[10px] font-mono text-slate-400">{c.hex}</span>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{c.label}</span>
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{c.hex}</span>
           </div>
         ))}
       </div>
@@ -1029,12 +1072,12 @@ function UserMenuPreview() {
       </div>
 
       {/* Specs */}
-      <div className="space-y-2 text-xs text-slate-500 max-w-xs">
+      <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400 max-w-xs">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: "#E8533A" }} />
           <span>Avatar com iniciais em coral</span>
         </div>
-        <p className="text-[10px] font-mono text-slate-400">Click-outside fecha o dropdown · ESC fecha · z-index: 50</p>
+        <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500">Click-outside fecha o dropdown · ESC fecha · z-index: 50</p>
         <div className="flex gap-2">
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">CFO / CEO</span>
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Analista</span>
@@ -1053,50 +1096,50 @@ function RetryLoaderPreview() {
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Loading */}
       <div
-        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "loading" ? "border-blue-300 bg-blue-50/30" : "border-slate-200"}`}
+        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "loading" ? "border-blue-300 bg-blue-50/30 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700"}`}
         onClick={() => setState("loading")}
       >
         <div className="flex flex-col items-center justify-center py-6 gap-3">
           <div className="animate-oculos-orbit" style={{ animationDuration: "2.2s" }}>
             <OculosIcon size={40} style={{ color: "#E8533A" }} />
           </div>
-          <span className="text-sm text-slate-500">Carregando...</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Carregando...</span>
         </div>
-        <p className="text-[10px] font-mono text-slate-400 text-center mt-1">loading state</p>
+        <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 text-center mt-1">loading state</p>
       </div>
 
       {/* Loading with retry counter */}
       <div
-        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "retry" ? "border-blue-300 bg-blue-50/30" : "border-slate-200"}`}
+        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "retry" ? "border-blue-300 bg-blue-50/30 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700"}`}
         onClick={() => setState("retry")}
       >
         <div className="flex flex-col items-center justify-center py-6 gap-3">
           <OculosDraw size={40} />
-          <span className="text-sm text-slate-500">Carregando...</span>
-          <span className="text-xs text-slate-400">Tentativa 2 de 3...</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Carregando...</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">Tentativa 2 de 3...</span>
         </div>
-        <p className="text-[10px] font-mono text-slate-400 text-center mt-1">retry attempt</p>
+        <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 text-center mt-1">retry attempt</p>
       </div>
 
       {/* Error */}
       <div
-        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "error" ? "border-red-300 bg-red-50/30" : "border-slate-200"}`}
+        className={`rounded-2xl border p-5 cursor-pointer transition-all ${state === "error" ? "border-red-300 bg-red-50/30 dark:bg-red-900/20" : "border-slate-200 dark:border-slate-700"}`}
         onClick={() => setState("error")}
       >
         <div className="flex flex-col items-center justify-center py-6 gap-4">
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
             <OculosIcon size={28} style={{ color: "#f87171" }} />
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-slate-700">Nao foi possivel carregar</p>
-            <p className="text-xs text-slate-400 mt-1">Timeout ao conectar com o servidor.</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Nao foi possivel carregar</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Timeout ao conectar com o servidor.</p>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
             <MSIcon name="refresh" className="text-base" />
             Tentar novamente
           </button>
         </div>
-        <p className="text-[10px] font-mono text-slate-400 text-center mt-1">error state</p>
+        <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 text-center mt-1">error state</p>
       </div>
     </div>
   );
@@ -1144,7 +1187,7 @@ function CountUpPreview() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <p className="text-xs text-slate-500">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms cubic ease-out. Clique em Replay.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms cubic ease-out. Clique em Replay.</p>
         <button
           onClick={() => setKey((k) => k + 1)}
           className="self-start sm:self-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex-shrink-0"
@@ -1279,16 +1322,16 @@ function ModalPreview() {
       )}
 
       {activeModal === "none" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-500">
-          <div className="bg-slate-50 rounded-xl p-4 space-y-2">
-            <p className="font-semibold text-slate-700">Modal Criar / Editar</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 rounded-xl p-4 space-y-2">
+            <p className="font-semibold text-slate-700 dark:text-slate-200">Modal Criar / Editar</p>
             <p>Header com icone + titulo, formulario com campos, footer com Cancelar + acao primaria azul.</p>
-            <p className="text-[10px] font-mono text-slate-400">ESC fecha · backdrop black/40 · animate-modal-in · z-50</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500">ESC fecha · backdrop black/40 · animate-modal-in · z-50</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-4 space-y-2">
-            <p className="font-semibold text-slate-700">Modal Excluir (Destructive)</p>
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 rounded-xl p-4 space-y-2">
+            <p className="font-semibold text-slate-700 dark:text-slate-200">Modal Excluir (Destructive)</p>
             <p>Icone vermelho em circulo, nome do item, mensagem de confirmacao. Footer com Cancelar + acao destrutiva vermelha.</p>
-            <p className="text-[10px] font-mono text-slate-400">rounded-2xl · shadow-xl · max-w-md</p>
+            <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500">rounded-2xl · shadow-xl · max-w-md</p>
           </div>
         </div>
       )}
@@ -1329,9 +1372,9 @@ function ConfidenceBadgePreview() {
             <div>
               <div className="flex items-center gap-1.5">
                 <MSIcon name={l.icon} className={`text-[16px] ${l.iconColor}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'OPSZ' 20" }} />
-                <span className="text-sm font-semibold text-slate-700">{l.label}</span>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{l.label}</span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">{l.desc}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{l.desc}</p>
             </div>
           </div>
         ))}
@@ -1358,48 +1401,50 @@ function FileUploadPreview() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Empty state */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Vazio</p>
+        <div className="flex flex-col">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Vazio</p>
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => { e.preventDefault(); setDragOver(false); setFile("NF-e_000456.pdf"); }}
-            className={`rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
-              dragOver ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-slate-50 hover:border-slate-300"
+            className={`flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+              dragOver
+                ? "border-blue-400 bg-blue-50 dark:bg-blue-900/25 dark:border-blue-400"
+                : "border-slate-300 dark:border-slate-500 bg-slate-50 dark:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-400"
             }`}
           >
             <div className="flex flex-col items-center justify-center gap-1.5 py-8 text-center">
-              <MSIcon name="upload_file" className="text-slate-400" style={{ fontSize: 24 }} />
-              <p className="text-xs font-medium text-slate-600">Anexar NF ou boleto</p>
-              <p className="text-[11px] text-slate-400">PDF ou XML · a IA preenche os campos</p>
+              <MSIcon name="upload_file" className="text-slate-400 dark:text-slate-300" style={{ fontSize: 24 }} />
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Anexar NF ou boleto</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400">PDF ou XML · a IA preenche os campos</p>
             </div>
           </div>
         </div>
 
         {/* With file */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Com arquivo</p>
-          <div className="rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50">
+        <div className="flex flex-col">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Com arquivo</p>
+          <div className="flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-500/60 bg-blue-50/50 dark:bg-blue-950/30">
             <div className="flex items-center gap-3 px-4 py-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600" />
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-800/50 flex items-center justify-center flex-shrink-0">
+                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600 dark:text-blue-300" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 truncate">{file || "NF-e_000456.pdf"}</p>
-                <p className="text-xs text-slate-400">128 KB · PDF</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-100 truncate">{file || "NF-e_000456.pdf"}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-400">128 KB · PDF</p>
               </div>
-              <button onClick={() => setFile(null)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+              <button onClick={() => setFile(null)} className="p-1 text-slate-400 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                 <MSIcon name="close" className="text-[16px]" />
               </button>
             </div>
-            <div className="px-4 pb-3">
+            <div className="px-4 pb-4">
               <div className="flex items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 dark:bg-blue-700/50 text-blue-700 dark:text-blue-200">
                   <MSIcon name="auto_awesome" style={{ fontSize: 10 }} />
                   IA
                 </span>
-                <span className="text-slate-500">Extraindo dados do documento...</span>
-                <MSIcon name="progress_activity" className="text-[14px] animate-spin text-blue-500" style={{ animationDuration: "1.1s" }} />
+                <span className="text-slate-500 dark:text-slate-300">Extraindo dados do documento...</span>
+                <MSIcon name="progress_activity" className="text-[14px] animate-spin text-blue-500 dark:text-blue-400" style={{ animationDuration: "1.1s" }} />
               </div>
             </div>
           </div>
@@ -1408,11 +1453,11 @@ function FileUploadPreview() {
 
       {/* Drag-over state */}
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Drag-over (hover)</p>
-        <div className="rounded-xl border-2 border-dashed border-blue-400 bg-blue-50">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Drag-over (hover)</p>
+        <div className="rounded-xl border-2 border-dashed border-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/25">
           <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">
-            <MSIcon name="file_download" className="text-blue-500" style={{ fontSize: 28 }} />
-            <p className="text-xs font-semibold text-blue-600">Solte o arquivo aqui</p>
+            <MSIcon name="file_download" className="text-blue-500 dark:text-blue-300" style={{ fontSize: 28 }} />
+            <p className="text-xs font-semibold text-blue-600 dark:text-blue-300">Solte o arquivo aqui</p>
           </div>
         </div>
       </div>
@@ -1428,8 +1473,8 @@ function TogglePreview() {
   const Toggle = ({ checked, onChange, label, sublabel }: { checked: boolean; onChange: () => void; label: string; sublabel?: string }) => (
     <div className="flex items-center justify-between py-2">
       <div>
-        <p className="text-sm font-medium text-slate-700">{label}</p>
-        {sublabel && <p className="text-xs text-slate-400 mt-0.5">{sublabel}</p>}
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{label}</p>
+        {sublabel && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{sublabel}</p>}
       </div>
       <button
         onClick={onChange}
@@ -1446,23 +1491,23 @@ function TogglePreview() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div className="space-y-1 bg-white border border-slate-200 rounded-xl px-5 py-4">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Contexto: Despesa recorrente</p>
+      <div className="space-y-1 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Contexto: Despesa recorrente</p>
         <Toggle checked={toggles.recorrente} onChange={() => setToggles(t => ({ ...t, recorrente: !t.recorrente }))} label="Despesa recorrente" sublabel="Gerar lancamentos automaticamente" />
         {toggles.recorrente && (
           <>
             <Toggle checked={toggles.valorFixo} onChange={() => setToggles(t => ({ ...t, valorFixo: !t.valorFixo }))} label="Valor fixo" sublabel="Manter o mesmo valor em todos os lancamentos" />
-            <div className="pt-2 border-t border-slate-100">
-              <p className="text-xs text-slate-500 flex items-center gap-1.5">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
+              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <MSIcon name="repeat" className="text-[14px] text-blue-500" />
-                Frequencia: <span className="font-semibold text-slate-700">Mensal</span>
+                Frequencia: <span className="font-semibold text-slate-700 dark:text-slate-200">Mensal</span>
               </p>
             </div>
           </>
         )}
       </div>
-      <div className="space-y-1 bg-white border border-slate-200 rounded-xl px-5 py-4">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Contexto: Agendamento & fornecedor</p>
+      <div className="space-y-1 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Contexto: Agendamento & fornecedor</p>
         <Toggle checked={toggles.agendamento} onChange={() => setToggles(t => ({ ...t, agendamento: !t.agendamento }))} label="Envio automatico" sublabel="Relatorio enviado toda segunda as 20:00" />
         <Toggle checked={toggles.ativo} onChange={() => setToggles(t => ({ ...t, ativo: !t.ativo }))} label="Fornecedor ativo" sublabel="Desativar remove da lista de selecao" />
       </div>
@@ -1494,97 +1539,144 @@ function AgendamentoPreview() {
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => setOpen(!open)}
-          className="inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors"
-          style={
-            ativo
-              ? { backgroundColor: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }
-              : { backgroundColor: "#f1f5f9", borderColor: "#cbd5e1", color: "#64748b" }
-          }
-        >
-          <MSIcon name={ativo ? "event_repeat" : "event_busy"} className="text-[13px]" />
-          {ativo ? `${DIAS_SEMANA.find(d => d.value === dia)?.label} as ${String(hora).padStart(2, "0")}:00` : "desativado"}
-          <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[12px] ml-0.5" />
-        </button>
-        <p className="text-xs text-slate-500">Trigger button do dropdown</p>
+    <div className="flex flex-col sm:flex-row gap-6 items-start">
+      {/* Left: interactive component */}
+      <div className="space-y-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpen(!open)}
+            className={`inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors ${
+              ativo
+                ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400"
+            }`}
+          >
+            <MSIcon name={ativo ? "event_repeat" : "event_busy"} className="text-[13px]" />
+            {ativo ? `${DIAS_SEMANA.find(d => d.value === dia)?.label} as ${String(hora).padStart(2, "0")}:00` : "desativado"}
+            <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[12px] ml-0.5" />
+          </button>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Trigger button</p>
+        </div>
+
+        {open && (
+          <div className="w-full max-w-[288px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden">
+            {/* Toggle header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700/60">
+              <div className="flex items-center gap-2">
+                <MSIcon name="schedule_send" className="text-[18px] text-slate-400 dark:text-slate-400" />
+                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">Envio automatico</span>
+              </div>
+              <button
+                onClick={() => setAtivo(!ativo)}
+                className={`relative w-9 h-5 rounded-full transition-colors ${ativo ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"}`}
+              >
+                <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform" style={{ left: ativo ? "18px" : "2px" }} />
+              </button>
+            </div>
+
+            {ativo && (
+              <div className="px-4 py-3 space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Dia da semana</label>
+                  <div className="mt-1.5 grid grid-cols-4 gap-1">
+                    {DIAS_SEMANA.map((d) => (
+                      <button
+                        key={d.value}
+                        onClick={() => setDia(d.value)}
+                        className={`text-xs py-1.5 px-1 rounded-lg font-medium transition-colors text-center ${
+                          dia === d.value
+                            ? "bg-blue-100 dark:bg-blue-800/60 text-blue-700 dark:text-blue-200"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {d.label.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Horario</label>
+                  <div className="mt-1.5 grid grid-cols-6 gap-1 max-h-28 overflow-y-auto">
+                    {HORAS.map((h) => (
+                      <button
+                        key={h.value}
+                        onClick={() => setHora(h.value)}
+                        className={`text-xs py-1.5 rounded-lg font-medium tabular-nums transition-colors ${
+                          hora === h.value
+                            ? "bg-blue-100 dark:bg-blue-800/60 text-blue-700 dark:text-blue-200"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {h.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Relatorio enviado toda{" "}
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">{DIAS_SEMANA.find(d => d.value === dia)?.label.toLowerCase()}</span>{" "}
+                    as <span className="font-semibold text-slate-700 dark:text-slate-200">{String(hora).padStart(2, "0")}:00</span> para o CFO.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!ativo && (
+              <div className="px-4 py-4 text-center">
+                <p className="text-xs text-slate-400 dark:text-slate-500">Envio automatico desativado</p>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
+              <button className="flex-1 h-8 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Cancelar</button>
+              <button className="flex-1 h-8 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 transition-colors">
+                <MSIcon name="check" style={{ fontSize: 13 }} /> Salvar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {open && (
-        <div className="w-full max-w-[288px] bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-          {/* Toggle */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <MSIcon name="schedule_send" className="text-[18px] text-slate-500" />
-              <span className="text-sm font-semibold text-slate-800">Envio automatico</span>
+      {/* Right: specs */}
+      <div className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Especificacoes</p>
+        <div className="space-y-2.5">
+          <div className="flex items-start gap-2">
+            <MSIcon name="schedule" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Agendamento semanal</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Selecao de dia da semana + horario de envio do relatorio</p>
             </div>
-            <button
-              onClick={() => setAtivo(!ativo)}
-              className="relative w-9 h-5 rounded-full transition-colors"
-              style={{ backgroundColor: ativo ? "#3b82f6" : "#cbd5e1" }}
-            >
-              <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform" style={{ left: ativo ? "18px" : "2px" }} />
-            </button>
           </div>
-
-          {ativo && (
-            <div className="px-4 py-3 space-y-3">
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Dia da semana</label>
-                <div className="mt-1.5 grid grid-cols-4 gap-1">
-                  {DIAS_SEMANA.map((d) => (
-                    <button
-                      key={d.value}
-                      onClick={() => setDia(d.value)}
-                      className="text-xs py-1.5 px-1 rounded-lg font-medium transition-colors text-center"
-                      style={dia === d.value ? { backgroundColor: "#dbeafe", color: "#1d4ed8" } : { backgroundColor: "#f8fafc", color: "#64748b" }}
-                    >
-                      {d.label.slice(0, 3)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Horario</label>
-                <div className="mt-1.5 grid grid-cols-6 gap-1 max-h-28 overflow-y-auto">
-                  {HORAS.map((h) => (
-                    <button
-                      key={h.value}
-                      onClick={() => setHora(h.value)}
-                      className="text-xs py-1.5 rounded-lg font-medium tabular-nums transition-colors"
-                      style={hora === h.value ? { backgroundColor: "#dbeafe", color: "#1d4ed8" } : { backgroundColor: "#f8fafc", color: "#64748b" }}
-                    >
-                      {h.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="pt-2 border-t border-slate-100">
-                <p className="text-xs text-slate-500">
-                  Relatorio enviado toda{" "}
-                  <span className="font-semibold text-slate-700">{DIAS_SEMANA.find(d => d.value === dia)?.label.toLowerCase()}</span>{" "}
-                  as <span className="font-semibold text-slate-700">{String(hora).padStart(2, "0")}:00</span> para o CFO.
-                </p>
-              </div>
+          <div className="flex items-start gap-2">
+            <MSIcon name="toggle_on" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Toggle de ativacao</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Habilitar ou desabilitar sem perder a configuracao salva</p>
             </div>
-          )}
-
-          {!ativo && (
-            <div className="px-4 py-4 text-center">
-              <p className="text-xs text-slate-400">Envio automatico desativado</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <MSIcon name="mail" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Destinatario fixo</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Relatorio enviado automaticamente para o CFO</p>
             </div>
-          )}
-
-          <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 bg-slate-50">
-            <button className="flex-1 h-8 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Cancelar</button>
-            <button className="flex-1 h-8 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 bg-blue-600">
-              <MSIcon name="check" style={{ fontSize: 13 }} /> Salvar
-            </button>
+          </div>
+          <div className="flex items-start gap-2">
+            <MSIcon name="expand_more" className="text-[14px] text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Dropdown inline</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Abre abaixo do trigger sem modal ou overlay</p>
+            </div>
           </div>
         </div>
-      )}
+        <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Largura: <span className="font-mono text-slate-600 dark:text-slate-300">288px</span> · Estado salvo via <span className="font-mono text-slate-600 dark:text-slate-300">localStorage</span>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1643,9 +1735,9 @@ function ExportPdfPreview() {
       </div>
 
       {/* Live demo */}
-      <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Live demo</span>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Live demo</span>
           <button
             onClick={cycle}
             disabled={estado !== "idle"}
@@ -1681,7 +1773,7 @@ function ExtraAnimationsGrid() {
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
 
       {/* 1 — Modal scale-in */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
         <div className="relative flex items-center justify-center w-20 h-20">
           {modalVisible ? (
             <div key={countKey} className="animate-modal-in bg-white rounded-xl shadow-lg border border-slate-200 w-16 h-14 flex items-center justify-center">
@@ -1692,27 +1784,27 @@ function ExtraAnimationsGrid() {
           )}
         </div>
         <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Modal in</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-modal-in</p>
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Modal in</p>
+          <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-modal-in</p>
           <button onClick={() => { setModalVisible(true); setCountKey(k => k + 1); setTimeout(() => setModalVisible(false), 1500); }} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
         </div>
       </div>
 
       {/* 2 — Fade-in backdrop */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
         <div className="relative flex items-center justify-center w-20 h-20">
           <div key={countKey} className="animate-fade-in bg-black/30 rounded-xl w-16 h-14 flex items-center justify-center">
             <MSIcon name="visibility" className="text-[20px] text-white" />
           </div>
         </div>
         <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Fade in</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-fade-in</p>
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Fade in</p>
+          <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">animate-fade-in</p>
         </div>
       </div>
 
       {/* 3 — Staggered bounce dots (AI loading) */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
         <div className="flex items-end justify-center gap-1.5 w-20 h-20">
           {[0, 1, 2].map((i) => (
             <div
@@ -1723,13 +1815,13 @@ function ExtraAnimationsGrid() {
           ))}
         </div>
         <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">AI Loading</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">staggered dots</p>
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">AI Loading</p>
+          <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">staggered dots</p>
         </div>
       </div>
 
       {/* 4 — CountUp bar fill */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white py-7 px-4">
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
         <div className="flex flex-col items-center justify-center gap-3 w-20 h-20">
           <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
             <div key={countKey} className="h-full bg-blue-600 rounded-full animate-countup-bar" style={{ "--bar-width": "75%" } as React.CSSProperties} />
@@ -1737,8 +1829,8 @@ function ExtraAnimationsGrid() {
           <span className="text-xs font-mono text-slate-500">75%</span>
         </div>
         <div className="text-center">
-          <p className="text-xs font-semibold text-slate-700">Bar Fill</p>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">countup-bar</p>
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Bar Fill</p>
+          <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">countup-bar</p>
         </div>
       </div>
     </div>
@@ -1815,17 +1907,17 @@ function CalendarPreview() {
       <div className="flex flex-col sm:flex-row gap-4">
 
         {/* ── Calendar grid ── */}
-        <div className="flex-1 min-w-0 border border-slate-200 rounded-xl overflow-hidden bg-white">
+        <div className="flex-1 min-w-0 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800/50">
           {/* Month navigation */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             <button
               onClick={prevMonth}
-              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
-              <MSIcon name="chevron_left" className="text-slate-600" style={{ fontSize: 18 }} />
+              <MSIcon name="chevron_left" className="text-slate-600 dark:text-slate-400" style={{ fontSize: 18 }} />
             </button>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-800">
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {MONTH_NAMES[month]} {year}
               </span>
               {!isCurrentMonthYear && (
@@ -1840,18 +1932,18 @@ function CalendarPreview() {
             </div>
             <button
               onClick={nextMonth}
-              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
-              <MSIcon name="chevron_right" className="text-slate-600" style={{ fontSize: 18 }} />
+              <MSIcon name="chevron_right" className="text-slate-600 dark:text-slate-400" style={{ fontSize: 18 }} />
             </button>
           </div>
 
           {/* Day-of-week headers */}
-          <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+          <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             {DAY_NAMES.map((d) => (
               <div
                 key={d}
-                className="py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider"
+                className="py-2 text-center text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
               >
                 {d}
               </div>
@@ -1866,20 +1958,20 @@ function CalendarPreview() {
               const cellEvents = cell.isCurrentMonth
                 ? (effectiveEvents[cell.day] || [])
                 : [];
-              const borderLeft  = i % 7 !== 0 ? "border-l border-slate-100" : "";
-              const borderTop   = i >= 7      ? "border-t border-slate-100" : "";
+              const borderLeft  = i % 7 !== 0 ? "border-l border-slate-100 dark:border-slate-700/60" : "";
+              const borderTop   = i >= 7      ? "border-t border-slate-100 dark:border-slate-700/60" : "";
 
               return (
                 <button
                   key={i}
                   onClick={() => cell.isCurrentMonth && setSelectedDay(cell.day)}
                   disabled={!cell.isCurrentMonth}
-                  className={`relative flex flex-col items-center justify-start py-2 gap-0.5 min-h-[48px] transition-colors ${borderLeft} ${borderTop} ${
+                  className={`relative flex flex-col items-center justify-start py-2 gap-0.5 min-h-[44px] transition-colors ${borderLeft} ${borderTop} ${
                     !cell.isCurrentMonth
-                      ? "cursor-default bg-slate-50/50"
+                      ? "cursor-default bg-slate-50/50 dark:bg-slate-800/30"
                       : isSelected
-                      ? "bg-orange-50"
-                      : "hover:bg-slate-50 cursor-pointer"
+                      ? "bg-orange-50 dark:bg-orange-900/20"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-700/40 cursor-pointer"
                   }`}
                 >
                   <span
@@ -1889,18 +1981,14 @@ function CalendarPreview() {
                         : isTodayCell
                         ? "font-bold"
                         : !cell.isCurrentMonth
-                        ? "font-medium text-slate-300"
-                        : "font-medium text-slate-700"
+                        ? "font-medium text-slate-300 dark:text-slate-600"
+                        : "font-medium text-slate-700 dark:text-slate-300"
                     }`}
                     style={
                       isSelected
                         ? { backgroundColor: "#E8533A" }
                         : isTodayCell
-                        ? {
-                            color: "#2563EB",
-                            outline: "2px solid #2563EB",
-                            outlineOffset: "1px",
-                          }
+                        ? { color: "#2563EB", outline: "2px solid #2563EB", outlineOffset: "1px" }
                         : undefined
                     }
                   >
@@ -1915,9 +2003,7 @@ function CalendarPreview() {
                           key={j}
                           className="w-1 h-1 rounded-full"
                           style={{
-                            backgroundColor: isSelected
-                              ? "rgba(232,83,58,0.5)"
-                              : ev.color,
+                            backgroundColor: isSelected ? "rgba(232,83,58,0.5)" : ev.color,
                           }}
                         />
                       ))}
@@ -1930,49 +2016,41 @@ function CalendarPreview() {
         </div>
 
         {/* ── Event panel ── */}
-        <div className="w-full sm:w-56 border border-slate-200 rounded-xl overflow-hidden flex flex-col bg-white">
-          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="w-full sm:w-56 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden flex flex-col bg-white dark:bg-slate-800/50 self-stretch">
+          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {selectedDay
                 ? `${selectedDay} de ${MONTH_NAMES[month]}`
                 : "Selecione um dia"}
             </p>
           </div>
 
-          <div className="flex-1 p-3 space-y-2">
+          <div className="flex-1 p-3 space-y-2 overflow-y-auto">
             {selectedEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-24 gap-1.5">
-                <MSIcon
-                  name="event_busy"
-                  className="text-slate-300"
-                  style={{ fontSize: 28 }}
-                />
-                <p className="text-xs text-slate-400">Sem eventos</p>
+              <div className="flex flex-col items-center justify-center h-full min-h-[80px] gap-1.5">
+                <MSIcon name="event_busy" className="text-slate-300 dark:text-slate-600" style={{ fontSize: 28 }} />
+                <p className="text-xs text-slate-400 dark:text-slate-500">Sem eventos</p>
               </div>
             ) : (
               selectedEvents.map((ev, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
                   <span
                     className="w-2 h-2 rounded-full mt-0.5 flex-shrink-0"
                     style={{ backgroundColor: ev.color }}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-slate-700 leading-snug">
-                      {ev.label}
-                    </p>
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                      {ev.time}
-                    </p>
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-200 leading-snug">{ev.label}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{ev.time}</p>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50">
+          <div className="px-3 py-2.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             <button
               className="w-full h-7 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 transition-opacity hover:opacity-90"
               style={{ backgroundColor: "#E8533A" }}
@@ -1986,56 +2064,34 @@ function CalendarPreview() {
 
       {/* ── States legend ── */}
       <SubSection title="Estados dos dias">
-        <div className="flex flex-wrap gap-5 items-start">
+        <div className="flex flex-wrap gap-5 items-center">
           <div className="flex items-center gap-2">
-            <span
-              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold"
-              style={{
-                color: "#2563EB",
-                outline: "2px solid #2563EB",
-                outlineOffset: "1px",
-              }}
-            >
-              14
-            </span>
-            <span className="text-xs text-slate-500">Hoje</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold"
+              style={{ color: "#2563EB", outline: "2px solid #2563EB", outlineOffset: "1px" }}>14</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Hoje</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <span
-              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ backgroundColor: "#E8533A" }}
-            >
-              7
-            </span>
-            <span className="text-xs text-slate-500">Selecionado</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ backgroundColor: "#E8533A" }}>7</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Selecionado</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700">
-              22
-            </span>
-            <span className="text-xs text-slate-500">Normal</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700 dark:text-slate-300">22</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Normal</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-300">
-              30
-            </span>
-            <span className="text-xs text-slate-500">Outro mês</span>
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-300 dark:text-slate-600">30</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Outro mês</span>
           </div>
-
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-center gap-0.5">
-              <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700">
-                18
-              </span>
+              <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700 dark:text-slate-300">18</span>
               <div className="flex gap-0.5">
                 <span className="w-1 h-1 rounded-full bg-blue-600" />
                 <span className="w-1 h-1 rounded-full" style={{ backgroundColor: "#E8533A" }} />
               </div>
             </div>
-            <span className="text-xs text-slate-500">Com eventos</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Com eventos</span>
           </div>
         </div>
       </SubSection>
@@ -2076,7 +2132,12 @@ const SECTIONS = [
 
 export function DesignSystemPage() {
   const [activeSection, setActiveSection] = useState("marca");
+  const [dark, setDark] = useState(() => localStorage.getItem("ds-theme") === "dark");
   const isScrolling = useRef(false);
+
+  useEffect(() => {
+    localStorage.setItem("ds-theme", dark ? "dark" : "light");
+  }, [dark]);
 
   useEffect(() => {
     const ids = SECTIONS.map((s) => s.id);
@@ -2107,18 +2168,18 @@ export function DesignSystemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200${dark ? " dark" : ""}`}>
 
       {/* ── Top bar ── */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-shrink-0">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(232, 83, 58, 0.08)" }}>
               <SellersIcon size={22} />
             </div>
-            <span className="text-sm font-bold text-slate-800 leading-none">Sellers</span>
-            <span className="hidden sm:block w-px h-4 bg-slate-200" />
-            <span className="hidden sm:block text-sm font-medium text-slate-500 leading-none">Design System</span>
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none">Sellers</span>
+            <span className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+            <span className="hidden sm:block text-sm font-medium text-slate-500 dark:text-slate-400 leading-none">Design System</span>
             <span className="text-[10px] font-semibold text-white px-2 py-0.5 rounded-full leading-none" style={{ backgroundColor: "#E8533A" }}>v0.2</span>
           </div>
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide" ref={(el) => {
@@ -2134,7 +2195,7 @@ export function DesignSystemPage() {
                 className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                   activeSection === s.id
                     ? "text-white"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
                 style={activeSection === s.id ? { backgroundColor: "#E8533A" } : undefined}
               >
@@ -2142,17 +2203,25 @@ export function DesignSystemPage() {
               </button>
             ))}
           </div>
+          {/* Dark mode toggle */}
+          <button
+            onClick={() => setDark(!dark)}
+            title={dark ? "Modo claro" : "Modo escuro"}
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <MSIcon name={dark ? "light_mode" : "dark_mode"} style={{ fontSize: 18 }} />
+          </button>
         </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-2">
 
         {/* ── Hero ── */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-6 sm:py-8 mb-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-6 sm:py-8 mb-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-6">
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">Sellers Design System</h1>
-              <p className="text-sm text-slate-500 max-w-xl leading-relaxed">
+              <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">Sellers Design System</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
                 Referência visual completa do sistema financeiro. Tokens de cor, tipografia, componentes e padrões de interface — tudo que você precisa para construir ou revisar a UI.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
@@ -2181,7 +2250,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 0. MARCA ── */}
-        <div id="marca" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="marca" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Marca" description="Ícone de marca extraído do logo Sellers. Use em favicons, avatares, loading screens e qualquer contexto que precise só do símbolo.">
 
             <SubSection title="Ícone — tamanhos">
@@ -2259,7 +2328,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 1. CORES ── */}
-        <div id="cores" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="cores" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Cores" description="Paleta completa: brand tokens, semânticos, status e sidebar.">
             <SubSection title="Brand — Sellers">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
@@ -2315,21 +2384,21 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 2. TIPOGRAFIA ── */}
-        <div id="tipografia" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="tipografia" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Tipografia" description="Fonte Inter (400–700). Todos os tamanhos e pesos utilizados na interface.">
             <TypographyShowcase />
           </Section>
         </div>
 
         {/* ── 3. BOTÕES ── */}
-        <div id="botoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="botoes" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Botões" description="Primary coral, action blue, secondary, ghost, destructive e icon-only.">
             <ButtonShowcase />
           </Section>
         </div>
 
         {/* ── 4. BADGES ── */}
-        <div id="badges" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="badges" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Status Badges" description="Os 11 estados do workflow de despesas — espelho exato de DespesaTable.tsx.">
             <div className="flex flex-wrap gap-4">
               {Object.keys(STATUS_CONFIG).map((status) => (
@@ -2343,20 +2412,22 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 5. KPI CARDS ── */}
-        <div id="kpi" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="kpi" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="KPI Cards" description="Métricas do dashboard com accent lateral. 5 variantes de cor.">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              <KPICard label="Pendente aprv." value="14"  sublabel="aguardando financeiro"       icon="schedule"  color="amber"  />
-              <KPICard label="Aguard. CFO"    value="3"   sublabel="alçada acima de R$5k"       icon="gpp_maybe" color="orange" />
-              <KPICard label="Revisão manual" value="7"   sublabel="confiança IA < 85%"         icon="warning"   color="red"    />
-              <KPICard label="Fornec. pend."  value="2"   sublabel="CNPJ não cadastrado"        icon="store"     color="violet" />
-              <KPICard label="Pagas / mês"    value="31"  sublabel="total processado"           icon="paid"      color="blue"   />
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+              <KPICard label="Pendente aprv." value="14"  sublabel="aguardando financeiro"  icon="schedule"  color="amber"  />
+              <KPICard label="Aguard. CFO"    value="3"   sublabel="alçada acima de R$5k"  icon="gpp_maybe" color="orange" />
+              <KPICard label="Revisão manual" value="7"   sublabel="confiança IA < 85%"    icon="warning"   color="red"    />
+              <KPICard label="Fornec. pend."  value="2"   sublabel="CNPJ não cadastrado"   icon="store"     color="violet" />
+              <div className="col-span-2 lg:col-span-1">
+                <KPICard label="Pagas / mês" value="31" sublabel="total processado" icon="paid" color="blue" />
+              </div>
             </div>
           </Section>
         </div>
 
         {/* ── 6. TOASTS ── */}
-        <div id="toasts" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="toasts" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Notificações (Toast)" description="4 níveis de severidade — success, info, warning, error. Com barra de progresso e auto-dismiss.">
             <div className="flex flex-wrap gap-5">
               {(["success","info","warning","error"] as const).map((lvl) => (
@@ -2367,105 +2438,105 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 7. INPUTS ── */}
-        <div id="inputs" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="inputs" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Inputs & Formulários" description="Default, preenchido, foco (ring blue), erro (ring red), disabled e textarea.">
             <InputPreview />
           </Section>
         </div>
 
         {/* ── 8. TABELA ── */}
-        <div id="tabela" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="tabela" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Tabela de Dados" description="Header com rótulos uppercase, linhas com hover sutil e badges de status inline.">
             <TablePreview />
           </Section>
         </div>
 
         {/* ── 9. PAGINAÇÃO ── */}
-        <div id="paginacao" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="paginacao" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Paginação" description="Seletor de tamanho de página + navegação interativa. Clique nos números.">
             <PaginationPreview />
           </Section>
         </div>
 
         {/* ── 10. SIDEBAR ── */}
-        <div id="sidebar" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="sidebar" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Sidebar" description="Dark theme #0a1628. Modo compacto (ícones) e expandido. Clique para trocar item ativo.">
             <SidebarPreview />
           </Section>
         </div>
 
         {/* ── 11. USER MENU ── */}
-        <div id="usermenu" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="usermenu" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="User Menu" description="Menu dropdown do avatar com info do usuário, role badge (CFO vs Analista) e logout. Click-outside fecha.">
             <UserMenuPreview />
           </Section>
         </div>
 
         {/* ── 12. MODAIS ── */}
-        <div id="modais" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="modais" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Modais" description="Padrão de modal com backdrop, animação scale-in e duas variantes: Criar/Editar (azul) e Excluir (destructive vermelho).">
             <ModalPreview />
           </Section>
         </div>
 
         {/* ── 13. RETRY LOADER ── */}
-        <div id="retryloader" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="retryloader" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Retry Loader" description="Componente de loading com spinner, contador de tentativas e estado de erro com botão de retry.">
             <RetryLoaderPreview />
           </Section>
         </div>
 
         {/* ── 14. COUNTUP ── */}
-        <div id="countup" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="countup" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="CountUp" description="Contador animado com requestAnimationFrame. Suporta formatação BRL e numérica. Usado nos KPI Cards do dashboard.">
             <CountUpPreview />
           </Section>
         </div>
 
         {/* ── 15. CONFIDENCE BADGE ── */}
-        <div id="confidence" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="confidence" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Confiança IA (Badge)" description="Badge de confiança da extração de IA. 3 níveis de cor: verde (≥85%), amber (70–85%) e vermelho (<70%).">
             <ConfidenceBadgePreview />
           </Section>
         </div>
 
         {/* ── 16. FILE UPLOAD ── */}
-        <div id="fileupload" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="fileupload" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="File Upload / Drag & Drop" description="Área de upload com drag-and-drop. 3 estados: vazio, com arquivo (+ extração IA) e drag-over.">
             <FileUploadPreview />
           </Section>
         </div>
 
         {/* ── 17. TOGGLE / SWITCH ── */}
-        <div id="toggle" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="toggle" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Toggle / Switch" description="Toggle switch para ativar/desativar funcionalidades. Usado em despesa recorrente, agendamento e fornecedor.">
             <TogglePreview />
           </Section>
         </div>
 
         {/* ── 18. AGENDAMENTO ── */}
-        <div id="agendamento" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="agendamento" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Agendamento de Relatório" description="Dropdown interativo para agendar envio automático de relatório. Seletor de dia e hora com toggle de ativação.">
             <AgendamentoPreview />
           </Section>
         </div>
 
         {/* ── 19. CALENDÁRIO ── */}
-        <div id="calendario" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="calendario" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Calendário" description="Visão mensal com navegação, indicador de hoje, dia selecionado e eventos coloridos por categoria. Inclui painel lateral de detalhes do dia.">
             <CalendarPreview />
           </Section>
         </div>
 
         {/* ── 20. EXPORT PDF ── */}
-        <div id="exportpdf" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="exportpdf" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Botão Exportar PDF" description="Botão com 3 estados visuais: idle (coral), loading (spinner + disabled) e erro (vermelho, auto-reverte em 3s).">
             <ExportPdfPreview />
           </Section>
         </div>
 
         {/* ── 20. ANIMAÇÕES ── */}
-        <div id="animacoes" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="animacoes" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Animações" description="Animações de produção e showcase premium com o ícone Óculos Sellers. Dark stage, glow, spring physics, parallax e stroke draw.">
             <SubSection title="Produção — drawer-in & toast-in">
               <DrawerToastDemo />
@@ -2480,7 +2551,7 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 12. ÍCONES ── */}
-        <div id="icons" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="icons" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Ícones" description="Ícone custom Sellers (Óculos) e biblioteca Material Symbols Outlined. Clique para copiar.">
             <SubSection title="Custom — Óculos Sellers">
               <OculosIconShowcase />
@@ -2492,16 +2563,16 @@ export function DesignSystemPage() {
         </div>
 
         {/* ── 13. GRÁFICOS ── */}
-        <div id="graficos" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+        <div id="graficos" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Paleta de Gráficos" description="Sequência de cores usada em Recharts bar/line/pie charts.">
             <ChartPalettePreview />
           </Section>
         </div>
 
         {/* Footer */}
-        <div className="text-center py-6 border-t border-slate-200 mt-4">
-          <p className="text-xs text-slate-400">Sellers Sistema Financeiro · Design System v0.2 · 2026</p>
-          <p className="text-[10px] text-slate-300 mt-1">Inter · Material Symbols Outlined · Tailwind CSS 3.3 · Radix UI</p>
+        <div className="text-center py-6 border-t border-slate-200 dark:border-slate-700/50 mt-4">
+          <p className="text-xs text-slate-400 dark:text-slate-500">Sellers Sistema Financeiro · Design System v0.2 · 2026</p>
+          <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1">Inter · Material Symbols Outlined · Tailwind CSS 3.3 · Radix UI</p>
         </div>
       </div>
     </div>
