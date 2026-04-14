@@ -1,0 +1,42 @@
+name: Auto PR dev → main
+
+on:
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Criar PR dev → main (se não existir)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh pr list --base main --head dev --state open --json number --jq '.[0].number')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --base main \
+              --head dev \
+              --title "chore: sync dev → main" \
+              --body "$(cat <<'EOF'
+          ## PR automática — dev → main
+
+          Gerada automaticamente após push na branch **dev**.
+
+          Revise as alterações e faça merge quando estiver pronto para publicar em produção.
+
+          > Deploy em produção ocorre automaticamente após merge em main (GitHub Pages).
+          EOF
+          )"
+            echo "PR criada com sucesso"
+          else
+            echo "PR #$EXISTING já existe para dev → main, nenhuma ação necessária"
+          fi
