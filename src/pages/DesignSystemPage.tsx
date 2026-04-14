@@ -1408,13 +1408,15 @@ function FileUploadPreview() {
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => { e.preventDefault(); setDragOver(false); setFile("NF-e_000456.pdf"); }}
             className={`flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
-              dragOver ? "border-blue-400 bg-blue-50" : "border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-500"
+              dragOver
+                ? "border-blue-400 bg-blue-50 dark:bg-blue-900/25 dark:border-blue-400"
+                : "border-slate-300 dark:border-slate-500 bg-slate-50 dark:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-400"
             }`}
           >
             <div className="flex flex-col items-center justify-center gap-1.5 py-8 text-center">
-              <MSIcon name="upload_file" className="text-slate-400 dark:text-slate-500" style={{ fontSize: 24 }} />
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-300">Anexar NF ou boleto</p>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500">PDF ou XML · a IA preenche os campos</p>
+              <MSIcon name="upload_file" className="text-slate-400 dark:text-slate-300" style={{ fontSize: 24 }} />
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Anexar NF ou boleto</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400">PDF ou XML · a IA preenche os campos</p>
             </div>
           </div>
         </div>
@@ -1422,27 +1424,27 @@ function FileUploadPreview() {
         {/* With file */}
         <div className="flex flex-col">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Com arquivo</p>
-          <div className="flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-700/50">
+          <div className="flex-1 flex flex-col justify-center rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-500/60 bg-blue-50/50 dark:bg-blue-950/30">
             <div className="flex items-center gap-3 px-4 py-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
-                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-800/50 flex items-center justify-center flex-shrink-0">
+                <MSIcon name="picture_as_pdf" className="text-[20px] text-blue-600 dark:text-blue-300" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{file || "NF-e_000456.pdf"}</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500">128 KB · PDF</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-100 truncate">{file || "NF-e_000456.pdf"}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-400">128 KB · PDF</p>
               </div>
-              <button onClick={() => setFile(null)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+              <button onClick={() => setFile(null)} className="p-1 text-slate-400 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                 <MSIcon name="close" className="text-[16px]" />
               </button>
             </div>
             <div className="px-4 pb-4">
               <div className="flex items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 dark:bg-blue-700/50 text-blue-700 dark:text-blue-200">
                   <MSIcon name="auto_awesome" style={{ fontSize: 10 }} />
                   IA
                 </span>
-                <span className="text-slate-500 dark:text-slate-400">Extraindo dados do documento...</span>
-                <MSIcon name="progress_activity" className="text-[14px] animate-spin text-blue-500" style={{ animationDuration: "1.1s" }} />
+                <span className="text-slate-500 dark:text-slate-300">Extraindo dados do documento...</span>
+                <MSIcon name="progress_activity" className="text-[14px] animate-spin text-blue-500 dark:text-blue-400" style={{ animationDuration: "1.1s" }} />
               </div>
             </div>
           </div>
@@ -1452,10 +1454,10 @@ function FileUploadPreview() {
       {/* Drag-over state */}
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Drag-over (hover)</p>
-        <div className="rounded-xl border-2 border-dashed border-blue-400 bg-blue-50">
+        <div className="rounded-xl border-2 border-dashed border-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/25">
           <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">
-            <MSIcon name="file_download" className="text-blue-500" style={{ fontSize: 28 }} />
-            <p className="text-xs font-semibold text-blue-600">Solte o arquivo aqui</p>
+            <MSIcon name="file_download" className="text-blue-500 dark:text-blue-300" style={{ fontSize: 28 }} />
+            <p className="text-xs font-semibold text-blue-600 dark:text-blue-300">Solte o arquivo aqui</p>
           </div>
         </div>
       </div>
