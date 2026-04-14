@@ -1149,45 +1149,42 @@ function RetryLoaderPreview() {
 
 function CountUpPreview() {
   const [key, setKey] = useState(0);
+  const [eased, setEased] = useState(0);
 
   const FORMATTERS = {
     brl: (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v),
     number: (v: number) => String(v),
   };
 
+  useEffect(() => {
+    setEased(0);
+    const startTime = performance.now();
+    let rafId: number;
+
+    function tick(timestamp: number) {
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / 400, 1);
+      const e = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setEased(e);
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [key]);
+
   function CountUpDemo({ to, type = "number", className = "" }: { to: number; type?: "brl" | "number"; className?: string }) {
     const format = FORMATTERS[type];
-    const [display, setDisplay] = useState(format(0));
-    const rafRef = useRef<number | null>(null);
-    const startRef = useRef<number | null>(null);
-
-    useEffect(() => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      startRef.current = performance.now();
-
-      function tick(timestamp: number) {
-        const elapsed = timestamp - startRef.current!;
-        const progress = Math.min(elapsed / 400, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        setDisplay(format(Math.round(to * eased)));
-        if (progress < 1) {
-          rafRef.current = requestAnimationFrame(tick);
-        } else {
-          setDisplay(format(to));
-        }
-      }
-
-      rafRef.current = requestAnimationFrame(tick);
-      return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-    }, [to, format, key]);
-
-    return <span className={className}>{display}</span>;
+    const value = eased === 1 ? to : Math.floor(to * eased);
+    return <span className={className}>{format(value)}</span>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <p className="text-xs text-slate-500 dark:text-slate-400">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms cubic ease-out. Clique em Replay.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms ease-out exponencial. Clique em Replay.</p>
         <button
           onClick={() => setKey((k) => k + 1)}
           className="self-start sm:self-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex-shrink-0"
@@ -1195,7 +1192,7 @@ function CountUpPreview() {
           <MSIcon name="refresh" className="text-[13px]" /> Replay
         </button>
       </div>
-      <div key={key} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 border-l-blue-500 bg-blue-50">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Pagas / mes</p>
           <CountUpDemo to={31} type="number" className="text-2xl font-bold tabular-nums text-blue-900" />
