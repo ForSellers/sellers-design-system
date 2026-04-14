@@ -1745,6 +1745,304 @@ function ExtraAnimationsGrid() {
   );
 }
 
+// ─── CALENDAR PREVIEW ────────────────────────────────────────────────────────
+
+function CalendarPreview() {
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(
+    new Date(today.getFullYear(), today.getMonth(), 1)
+  );
+  const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
+
+  const MONTH_NAMES = [
+    "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro",
+  ];
+  const DAY_NAMES = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+  const SAMPLE_EVENTS: Record<number, { label: string; color: string; time: string }[]> = {
+    3:  [{ label: "Revisão de contratos",  color: "#10b981", time: "13:00" }],
+    7:  [{ label: "Reunião financeira",    color: "#2563EB", time: "09:00" }],
+    12: [{ label: "Pagamento fornecedor",  color: "#10b981", time: "11:00" },
+         { label: "Aprovação CFO",         color: "#7c3aed", time: "16:00" }],
+    17: [{ label: "Relatório semanal",     color: "#f59e0b", time: "08:00" }],
+    21: [{ label: "Reunião diretoria",     color: "#E8533A", time: "15:00" },
+         { label: "Auditoria interna",     color: "#2563EB", time: "10:00" }],
+    26: [{ label: "Fechamento mensal",     color: "#E8533A", time: "14:30" }],
+  };
+
+  // Also add events to today's day in the current month
+  const todayDay = today.getDate();
+  const year  = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const isCurrentMonthYear =
+    month === today.getMonth() && year === today.getFullYear();
+
+  const effectiveEvents: typeof SAMPLE_EVENTS = { ...SAMPLE_EVENTS };
+  if (isCurrentMonthYear && !effectiveEvents[todayDay]) {
+    effectiveEvents[todayDay] = [
+      { label: "Reunião de alinhamento", color: "#E8533A", time: "10:00" },
+    ];
+  }
+
+  const firstDayOfWeek = new Date(year, month, 1).getDay();
+  const daysInMonth    = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+  const goToToday = () => {
+    setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDay(today.getDate());
+  };
+
+  const isToday = (day: number) =>
+    isCurrentMonthYear && day === today.getDate();
+
+  // Build 42-cell grid (6 rows × 7 cols)
+  const cells: { day: number; isCurrentMonth: boolean }[] = [];
+  for (let i = firstDayOfWeek - 1; i >= 0; i--)
+    cells.push({ day: daysInPrevMonth - i, isCurrentMonth: false });
+  for (let d = 1; d <= daysInMonth; d++)
+    cells.push({ day: d, isCurrentMonth: true });
+  while (cells.length < 42)
+    cells.push({ day: cells.length - daysInMonth - firstDayOfWeek + 1, isCurrentMonth: false });
+
+  const selectedEvents = selectedDay ? (effectiveEvents[selectedDay] || []) : [];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4">
+
+        {/* ── Calendar grid ── */}
+        <div className="flex-1 min-w-0 border border-slate-200 rounded-xl overflow-hidden bg-white">
+          {/* Month navigation */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <button
+              onClick={prevMonth}
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              <MSIcon name="chevron_left" className="text-slate-600" style={{ fontSize: 18 }} />
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-slate-800">
+                {MONTH_NAMES[month]} {year}
+              </span>
+              {!isCurrentMonthYear && (
+                <button
+                  onClick={goToToday}
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white leading-none"
+                  style={{ backgroundColor: "#E8533A" }}
+                >
+                  Hoje
+                </button>
+              )}
+            </div>
+            <button
+              onClick={nextMonth}
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              <MSIcon name="chevron_right" className="text-slate-600" style={{ fontSize: 18 }} />
+            </button>
+          </div>
+
+          {/* Day-of-week headers */}
+          <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+            {DAY_NAMES.map((d) => (
+              <div
+                key={d}
+                className="py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider"
+              >
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Day cells */}
+          <div className="grid grid-cols-7">
+            {cells.map((cell, i) => {
+              const isSelected = cell.isCurrentMonth && cell.day === selectedDay;
+              const isTodayCell = cell.isCurrentMonth && isToday(cell.day);
+              const cellEvents = cell.isCurrentMonth
+                ? (effectiveEvents[cell.day] || [])
+                : [];
+              const borderLeft  = i % 7 !== 0 ? "border-l border-slate-100" : "";
+              const borderTop   = i >= 7      ? "border-t border-slate-100" : "";
+
+              return (
+                <button
+                  key={i}
+                  onClick={() => cell.isCurrentMonth && setSelectedDay(cell.day)}
+                  disabled={!cell.isCurrentMonth}
+                  className={`relative flex flex-col items-center justify-start py-2 gap-0.5 min-h-[48px] transition-colors ${borderLeft} ${borderTop} ${
+                    !cell.isCurrentMonth
+                      ? "cursor-default bg-slate-50/50"
+                      : isSelected
+                      ? "bg-orange-50"
+                      : "hover:bg-slate-50 cursor-pointer"
+                  }`}
+                >
+                  <span
+                    className={`w-7 h-7 flex items-center justify-center rounded-full text-xs transition-all ${
+                      isSelected
+                        ? "font-bold text-white"
+                        : isTodayCell
+                        ? "font-bold"
+                        : !cell.isCurrentMonth
+                        ? "font-medium text-slate-300"
+                        : "font-medium text-slate-700"
+                    }`}
+                    style={
+                      isSelected
+                        ? { backgroundColor: "#E8533A" }
+                        : isTodayCell
+                        ? {
+                            color: "#2563EB",
+                            outline: "2px solid #2563EB",
+                            outlineOffset: "1px",
+                          }
+                        : undefined
+                    }
+                  >
+                    {cell.day}
+                  </span>
+
+                  {/* Event dots */}
+                  {cellEvents.length > 0 && (
+                    <div className="flex gap-0.5 mt-0.5">
+                      {cellEvents.slice(0, 3).map((ev, j) => (
+                        <span
+                          key={j}
+                          className="w-1 h-1 rounded-full"
+                          style={{
+                            backgroundColor: isSelected
+                              ? "rgba(232,83,58,0.5)"
+                              : ev.color,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Event panel ── */}
+        <div className="w-full sm:w-56 border border-slate-200 rounded-xl overflow-hidden flex flex-col bg-white">
+          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              {selectedDay
+                ? `${selectedDay} de ${MONTH_NAMES[month]}`
+                : "Selecione um dia"}
+            </p>
+          </div>
+
+          <div className="flex-1 p-3 space-y-2">
+            {selectedEvents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-24 gap-1.5">
+                <MSIcon
+                  name="event_busy"
+                  className="text-slate-300"
+                  style={{ fontSize: 28 }}
+                />
+                <p className="text-xs text-slate-400">Sem eventos</p>
+              </div>
+            ) : (
+              selectedEvents.map((ev, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors"
+                >
+                  <span
+                    className="w-2 h-2 rounded-full mt-0.5 flex-shrink-0"
+                    style={{ backgroundColor: ev.color }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-slate-700 leading-snug">
+                      {ev.label}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      {ev.time}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50">
+            <button
+              className="w-full h-7 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "#E8533A" }}
+            >
+              <MSIcon name="add" style={{ fontSize: 14 }} />
+              Novo evento
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── States legend ── */}
+      <SubSection title="Estados dos dias">
+        <div className="flex flex-wrap gap-5 items-start">
+          <div className="flex items-center gap-2">
+            <span
+              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold"
+              style={{
+                color: "#2563EB",
+                outline: "2px solid #2563EB",
+                outlineOffset: "1px",
+              }}
+            >
+              14
+            </span>
+            <span className="text-xs text-slate-500">Hoje</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ backgroundColor: "#E8533A" }}
+            >
+              7
+            </span>
+            <span className="text-xs text-slate-500">Selecionado</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700">
+              22
+            </span>
+            <span className="text-xs text-slate-500">Normal</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-300">
+              30
+            </span>
+            <span className="text-xs text-slate-500">Outro mês</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium text-slate-700">
+                18
+              </span>
+              <div className="flex gap-0.5">
+                <span className="w-1 h-1 rounded-full bg-blue-600" />
+                <span className="w-1 h-1 rounded-full" style={{ backgroundColor: "#E8533A" }} />
+              </div>
+            </div>
+            <span className="text-xs text-slate-500">Com eventos</span>
+          </div>
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
 // ─── NAV INDEX ────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
@@ -1767,6 +2065,7 @@ const SECTIONS = [
   { id: "fileupload",   label: "File Upload",   icon: "upload_file" },
   { id: "toggle",       label: "Toggle",        icon: "toggle_on" },
   { id: "agendamento",  label: "Agendamento",   icon: "schedule_send" },
+  { id: "calendario",   label: "Calendário",    icon: "calendar_month" },
   { id: "exportpdf",    label: "Exportar PDF",  icon: "picture_as_pdf" },
   { id: "animacoes",    label: "Animações",     icon: "motion_photos_on" },
   { id: "icons",        label: "Ícones",        icon: "interests" },
@@ -2151,7 +2450,14 @@ export function DesignSystemPage() {
           </Section>
         </div>
 
-        {/* ── 19. EXPORT PDF ── */}
+        {/* ── 19. CALENDÁRIO ── */}
+        <div id="calendario" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Calendário" description="Visão mensal com navegação, indicador de hoje, dia selecionado e eventos coloridos por categoria. Inclui painel lateral de detalhes do dia.">
+            <CalendarPreview />
+          </Section>
+        </div>
+
+        {/* ── 20. EXPORT PDF ── */}
         <div id="exportpdf" className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Botão Exportar PDF" description="Botão com 3 estados visuais: idle (coral), loading (spinner + disabled) e erro (vermelho, auto-reverte em 3s).">
             <ExportPdfPreview />
