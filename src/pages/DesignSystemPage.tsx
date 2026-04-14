@@ -143,17 +143,17 @@ function ColorDot({ hex, label, border = false }: { hex: string; label: string; 
 
 // Espelho exato de STATUS_CONFIG em DespesaTable.tsx
 const STATUS_CONFIG: Record<string, { label: string; icon: string; className: string; descricao: string }> = {
-  recebida:            { label: "Recebida",       icon: "move_to_inbox", className: "bg-slate-100 text-slate-600 border-slate-300",    descricao: "Email recebido. Aguardando processamento pelo agente de IA." },
-  extraida:            { label: "Extraída",        icon: "description",   className: "bg-blue-100 text-blue-700 border-blue-200",       descricao: "Dados extraídos com sucesso. Aguardando fila de aprovação." },
-  fornecedor_pendente: { label: "Forn. pendente", icon: "store",         className: "bg-violet-100 text-violet-700 border-violet-200", descricao: "CNPJ não cadastrado. Acesse o detalhe para cadastrar o fornecedor." },
-  processando_anexo:   { label: "Processando",    icon: "hourglass_top", className: "bg-sky-100 text-sky-700 border-sky-200",          descricao: "Agente de IA está extraindo os dados do documento." },
-  pendente_aprovacao:  { label: "Pendente",        icon: "schedule",      className: "bg-amber-100 text-amber-700 border-amber-200",    descricao: "Aguardando aprovação do financeiro." },
-  aguardando_cfo:      { label: "Ag. CFO",         icon: "pending",       className: "bg-orange-100 text-orange-700 border-orange-200", descricao: "Valor acima de R$ 5.000. Aguardando aprovação do CFO." },
-  revisao_manual:      { label: "Revisão",         icon: "warning",       className: "bg-red-100 text-red-700 border-red-200",          descricao: "Confiança da IA abaixo de 85%. Analista deve revisar os dados." },
-  aprovada:            { label: "Aprovada",         icon: "check_circle",  className: "bg-green-100 text-green-700 border-green-200",    descricao: "Aprovada. Será lançada automaticamente no OMIE." },
-  rejeitada:           { label: "Rejeitada",        icon: "cancel",        className: "bg-slate-200 text-slate-600 border-slate-300",    descricao: "Despesa rejeitada. Nenhuma ação necessária." },
-  lancada:             { label: "Lançada",          icon: "task_alt",      className: "bg-emerald-100 text-emerald-700 border-emerald-200", descricao: "Lançada com sucesso no OMIE. Processo concluído." },
-  erro_lancamento:     { label: "Erro OMIE",        icon: "error",         className: "bg-red-200 text-red-800 border-red-300",          descricao: "Falha no lançamento no OMIE. Será reprocessada automaticamente." },
+  recebida:            { label: "Recebida",       icon: "move_to_inbox", className: "bg-slate-100 text-slate-600 border-slate-300 dark:bg-transparent dark:text-slate-300 dark:border-slate-500",          descricao: "Email recebido. Aguardando processamento pelo agente de IA." },
+  extraida:            { label: "Extraída",        icon: "description",   className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-transparent dark:text-blue-400 dark:border-blue-500/70",           descricao: "Dados extraídos com sucesso. Aguardando fila de aprovação." },
+  fornecedor_pendente: { label: "Forn. pendente", icon: "store",         className: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-transparent dark:text-violet-400 dark:border-violet-500/70", descricao: "CNPJ não cadastrado. Acesse o detalhe para cadastrar o fornecedor." },
+  processando_anexo:   { label: "Processando",    icon: "hourglass_top", className: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-transparent dark:text-sky-400 dark:border-sky-500/70",                descricao: "Agente de IA está extraindo os dados do documento." },
+  pendente_aprovacao:  { label: "Pendente",        icon: "schedule",      className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-transparent dark:text-amber-400 dark:border-amber-500/70",      descricao: "Aguardando aprovação do financeiro." },
+  aguardando_cfo:      { label: "Ag. CFO",         icon: "pending",       className: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-transparent dark:text-orange-400 dark:border-orange-500/70", descricao: "Valor acima de R$ 5.000. Aguardando aprovação do CFO." },
+  revisao_manual:      { label: "Revisão",         icon: "warning",       className: "bg-red-100 text-red-700 border-red-200 dark:bg-transparent dark:text-red-400 dark:border-red-500/70",                descricao: "Confiança da IA abaixo de 85%. Analista deve revisar os dados." },
+  aprovada:            { label: "Aprovada",         icon: "check_circle",  className: "bg-green-100 text-green-700 border-green-200 dark:bg-transparent dark:text-green-400 dark:border-green-500/70",      descricao: "Aprovada. Será lançada automaticamente no OMIE." },
+  rejeitada:           { label: "Rejeitada",        icon: "cancel",        className: "bg-slate-200 text-slate-600 border-slate-300 dark:bg-transparent dark:text-slate-400 dark:border-slate-500/70",      descricao: "Despesa rejeitada. Nenhuma ação necessária." },
+  lancada:             { label: "Lançada",          icon: "task_alt",      className: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-transparent dark:text-emerald-400 dark:border-emerald-500/70", descricao: "Lançada com sucesso no OMIE. Processo concluído." },
+  erro_lancamento:     { label: "Erro OMIE",        icon: "error",         className: "bg-red-200 text-red-800 border-red-300 dark:bg-transparent dark:text-red-300 dark:border-red-400/70",                descricao: "Falha no lançamento no OMIE. Será reprocessada automaticamente." },
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -172,17 +172,17 @@ function StatusBadge({ status }: { status: string }) {
 type CardColor = "blue" | "amber" | "orange" | "red" | "violet";
 
 const CARD_COLORS: Record<CardColor, { border: string; bg: string; iconBg: string; label: string; value: string; sublabel: string; icon: string }> = {
-  blue:   { border: "border-l-blue-500",   bg: "bg-blue-50",   iconBg: "bg-blue-100",   label: "text-blue-600",   value: "text-blue-900",   sublabel: "text-blue-500",   icon: "text-blue-700" },
-  amber:  { border: "border-l-amber-500",  bg: "bg-amber-50",  iconBg: "bg-amber-100",  label: "text-amber-600",  value: "text-amber-900",  sublabel: "text-amber-500",  icon: "text-amber-700" },
-  orange: { border: "border-l-orange-500", bg: "bg-orange-50", iconBg: "bg-orange-100", label: "text-orange-600", value: "text-orange-900", sublabel: "text-orange-500", icon: "text-orange-700" },
-  red:    { border: "border-l-red-500",    bg: "bg-red-50",    iconBg: "bg-red-100",    label: "text-red-600",    value: "text-red-900",    sublabel: "text-red-500",    icon: "text-red-700" },
-  violet: { border: "border-l-violet-500", bg: "bg-violet-50", iconBg: "bg-violet-100", label: "text-violet-600", value: "text-violet-900", sublabel: "text-violet-500", icon: "text-violet-700" },
+  blue:   { border: "border-l-blue-500",   bg: "bg-blue-50 dark:bg-transparent",   iconBg: "bg-blue-100 dark:bg-blue-900/30",   label: "text-blue-600 dark:text-blue-400",   value: "text-blue-900 dark:text-blue-300",   sublabel: "text-blue-500 dark:text-blue-400",   icon: "text-blue-700 dark:text-blue-400" },
+  amber:  { border: "border-l-amber-500",  bg: "bg-amber-50 dark:bg-transparent",  iconBg: "bg-amber-100 dark:bg-amber-900/30",  label: "text-amber-600 dark:text-amber-400",  value: "text-amber-900 dark:text-amber-300",  sublabel: "text-amber-500 dark:text-amber-400",  icon: "text-amber-700 dark:text-amber-400" },
+  orange: { border: "border-l-orange-500", bg: "bg-orange-50 dark:bg-transparent", iconBg: "bg-orange-100 dark:bg-orange-900/30", label: "text-orange-600 dark:text-orange-400", value: "text-orange-900 dark:text-orange-300", sublabel: "text-orange-500 dark:text-orange-400", icon: "text-orange-700 dark:text-orange-400" },
+  red:    { border: "border-l-red-500",    bg: "bg-red-50 dark:bg-transparent",    iconBg: "bg-red-100 dark:bg-red-900/30",    label: "text-red-600 dark:text-red-400",    value: "text-red-900 dark:text-red-300",    sublabel: "text-red-500 dark:text-red-400",    icon: "text-red-700 dark:text-red-400" },
+  violet: { border: "border-l-violet-500", bg: "bg-violet-50 dark:bg-transparent", iconBg: "bg-violet-100 dark:bg-violet-900/30", label: "text-violet-600 dark:text-violet-400", value: "text-violet-900 dark:text-violet-300", sublabel: "text-violet-500 dark:text-violet-400", icon: "text-violet-700 dark:text-violet-400" },
 };
 
 function KPICard({ label, value, sublabel, icon, color }: { label: string; value: string; sublabel: string; icon: string; color: CardColor }) {
   const c = CARD_COLORS[color];
   return (
-    <div className={`rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 ${c.border} ${c.bg}`}>
+    <div className={`rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-4 py-3 border-l-4 ${c.border} ${c.bg}`}>
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className={`text-[11px] font-semibold uppercase tracking-wider truncate ${c.label}`}>{label}</p>
@@ -200,30 +200,30 @@ function KPICard({ label, value, sublabel, icon, color }: { label: string; value
 // ─── TOAST PREVIEW ───────────────────────────────────────────────────────────
 
 const TOAST_CONFIG = {
-  error:   { icon: "cloud_off",    iconBg: "bg-red-100",     iconColor: "text-red-600",    border: "border-red-200",    bar: "bg-red-400",    label: "Erro",       title: "Falha ao conectar ao OMIE",  body: "Não foi possível sincronizar. Tentativas em andamento." },
-  warning: { icon: "warning",      iconBg: "bg-amber-100",   iconColor: "text-amber-600",  border: "border-amber-200",  bar: "bg-amber-400",  label: "Atenção",    title: "Confiança IA abaixo de 85%", body: "Despesa requer revisão manual antes de prosseguir." },
-  info:    { icon: "info",         iconBg: "bg-blue-100",    iconColor: "text-blue-600",   border: "border-blue-200",   bar: "bg-blue-400",   label: "Informação", title: "Email recebido",             body: "Nova despesa detectada e enfileirada para processamento." },
-  success: { icon: "check_circle", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", border: "border-emerald-200", bar: "bg-emerald-400", label: "Sucesso",   title: "Despesa aprovada",           body: "A despesa foi enviada ao OMIE com sucesso." },
+  error:   { icon: "cloud_off",    iconBg: "bg-red-100 dark:bg-red-900/30",     iconColor: "text-red-600 dark:text-red-400",    border: "border-red-200 dark:border-red-500/60",    bar: "bg-red-400 dark:bg-red-500",    label: "Erro",       title: "Falha ao conectar ao OMIE",  body: "Não foi possível sincronizar. Tentativas em andamento." },
+  warning: { icon: "warning",      iconBg: "bg-amber-100 dark:bg-amber-900/30", iconColor: "text-amber-600 dark:text-amber-400", border: "border-amber-200 dark:border-amber-500/60", bar: "bg-amber-400 dark:bg-amber-500", label: "Atenção",    title: "Confiança IA abaixo de 85%", body: "Despesa requer revisão manual antes de prosseguir." },
+  info:    { icon: "info",         iconBg: "bg-blue-100 dark:bg-blue-900/30",   iconColor: "text-blue-600 dark:text-blue-400",   border: "border-blue-200 dark:border-blue-500/60",   bar: "bg-blue-400 dark:bg-blue-500",  label: "Informação", title: "Email recebido",             body: "Nova despesa detectada e enfileirada para processamento." },
+  success: { icon: "check_circle", iconBg: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-500/60", bar: "bg-emerald-400 dark:bg-emerald-500", label: "Sucesso", title: "Despesa aprovada", body: "A despesa foi enviada ao OMIE com sucesso." },
 };
 
 function ToastPreview({ level }: { level: keyof typeof TOAST_CONFIG }) {
   const cfg = TOAST_CONFIG[level];
   return (
     <div className="flex flex-col gap-1.5">
-      <div className={`bg-white border ${cfg.border} rounded-xl shadow-lg overflow-hidden w-72`}>
+      <div className={`bg-white dark:bg-slate-900 border ${cfg.border} rounded-xl shadow-lg overflow-hidden w-72`}>
         <div className="flex gap-3 px-4 py-3.5">
           <div className={`flex-shrink-0 w-8 h-8 rounded-lg ${cfg.iconBg} flex items-center justify-center`}>
             <MSIcon name={cfg.icon} className={`text-[18px] ${cfg.iconColor}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'OPSZ' 20" }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 leading-tight">{cfg.title}</p>
-            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{cfg.body}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{cfg.title}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{cfg.body}</p>
           </div>
-          <button className="flex-shrink-0 self-start text-slate-300 hover:text-slate-500">
+          <button className="flex-shrink-0 self-start text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400">
             <MSIcon name="close" className="text-[16px]" />
           </button>
         </div>
-        <div className="h-0.5 bg-slate-100">
+        <div className="h-0.5 bg-slate-100 dark:bg-slate-800">
           <div className={`h-full ${cfg.bar}`} style={{ width: "60%" }} />
         </div>
       </div>
