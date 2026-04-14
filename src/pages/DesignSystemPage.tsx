@@ -1545,92 +1545,96 @@ function AgendamentoPreview() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setOpen(!open)}
-            className="inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors"
-            style={
+            className={`inline-flex items-center gap-1.5 text-sm border px-3 py-2 rounded-xl font-medium transition-colors ${
               ativo
-                ? { backgroundColor: "#eff6ff", borderColor: "#bfdbfe", color: "#1d4ed8" }
-                : { backgroundColor: "#f1f5f9", borderColor: "#cbd5e1", color: "#64748b" }
-            }
+                ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400"
+            }`}
           >
             <MSIcon name={ativo ? "event_repeat" : "event_busy"} className="text-[13px]" />
             {ativo ? `${DIAS_SEMANA.find(d => d.value === dia)?.label} as ${String(hora).padStart(2, "0")}:00` : "desativado"}
             <MSIcon name={open ? "expand_less" : "expand_more"} className="text-[12px] ml-0.5" />
           </button>
-          <p className="text-xs text-slate-500">Trigger button</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Trigger button</p>
         </div>
 
         {open && (
           <div className="w-full max-w-[288px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden">
-          {/* Toggle */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <MSIcon name="schedule_send" className="text-[18px] text-slate-500" />
-              <span className="text-sm font-semibold text-slate-800">Envio automatico</span>
+            {/* Toggle header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700/60">
+              <div className="flex items-center gap-2">
+                <MSIcon name="schedule_send" className="text-[18px] text-slate-400 dark:text-slate-400" />
+                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">Envio automatico</span>
+              </div>
+              <button
+                onClick={() => setAtivo(!ativo)}
+                className={`relative w-9 h-5 rounded-full transition-colors ${ativo ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"}`}
+              >
+                <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform" style={{ left: ativo ? "18px" : "2px" }} />
+              </button>
             </div>
-            <button
-              onClick={() => setAtivo(!ativo)}
-              className="relative w-9 h-5 rounded-full transition-colors"
-              style={{ backgroundColor: ativo ? "#3b82f6" : "#cbd5e1" }}
-            >
-              <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform" style={{ left: ativo ? "18px" : "2px" }} />
-            </button>
-          </div>
 
-          {ativo && (
-            <div className="px-4 py-3 space-y-3">
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Dia da semana</label>
-                <div className="mt-1.5 grid grid-cols-4 gap-1">
-                  {DIAS_SEMANA.map((d) => (
-                    <button
-                      key={d.value}
-                      onClick={() => setDia(d.value)}
-                      className="text-xs py-1.5 px-1 rounded-lg font-medium transition-colors text-center"
-                      style={dia === d.value ? { backgroundColor: "#dbeafe", color: "#1d4ed8" } : { backgroundColor: "#f8fafc", color: "#64748b" }}
-                    >
-                      {d.label.slice(0, 3)}
-                    </button>
-                  ))}
+            {ativo && (
+              <div className="px-4 py-3 space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Dia da semana</label>
+                  <div className="mt-1.5 grid grid-cols-4 gap-1">
+                    {DIAS_SEMANA.map((d) => (
+                      <button
+                        key={d.value}
+                        onClick={() => setDia(d.value)}
+                        className={`text-xs py-1.5 px-1 rounded-lg font-medium transition-colors text-center ${
+                          dia === d.value
+                            ? "bg-blue-100 dark:bg-blue-800/60 text-blue-700 dark:text-blue-200"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {d.label.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Horario</label>
+                  <div className="mt-1.5 grid grid-cols-6 gap-1 max-h-28 overflow-y-auto">
+                    {HORAS.map((h) => (
+                      <button
+                        key={h.value}
+                        onClick={() => setHora(h.value)}
+                        className={`text-xs py-1.5 rounded-lg font-medium tabular-nums transition-colors ${
+                          hora === h.value
+                            ? "bg-blue-100 dark:bg-blue-800/60 text-blue-700 dark:text-blue-200"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {h.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Relatorio enviado toda{" "}
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">{DIAS_SEMANA.find(d => d.value === dia)?.label.toLowerCase()}</span>{" "}
+                    as <span className="font-semibold text-slate-700 dark:text-slate-200">{String(hora).padStart(2, "0")}:00</span> para o CFO.
+                  </p>
                 </div>
               </div>
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Horario</label>
-                <div className="mt-1.5 grid grid-cols-6 gap-1 max-h-28 overflow-y-auto">
-                  {HORAS.map((h) => (
-                    <button
-                      key={h.value}
-                      onClick={() => setHora(h.value)}
-                      className="text-xs py-1.5 rounded-lg font-medium tabular-nums transition-colors"
-                      style={hora === h.value ? { backgroundColor: "#dbeafe", color: "#1d4ed8" } : { backgroundColor: "#f8fafc", color: "#64748b" }}
-                    >
-                      {h.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="pt-2 border-t border-slate-100">
-                <p className="text-xs text-slate-500">
-                  Relatorio enviado toda{" "}
-                  <span className="font-semibold text-slate-700">{DIAS_SEMANA.find(d => d.value === dia)?.label.toLowerCase()}</span>{" "}
-                  as <span className="font-semibold text-slate-700">{String(hora).padStart(2, "0")}:00</span> para o CFO.
-                </p>
-              </div>
-            </div>
-          )}
+            )}
 
-          {!ativo && (
-            <div className="px-4 py-4 text-center">
-              <p className="text-xs text-slate-400">Envio automatico desativado</p>
-            </div>
-          )}
+            {!ativo && (
+              <div className="px-4 py-4 text-center">
+                <p className="text-xs text-slate-400 dark:text-slate-500">Envio automatico desativado</p>
+              </div>
+            )}
 
-          <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-            <button className="flex-1 h-8 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Cancelar</button>
-            <button className="flex-1 h-8 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 bg-blue-600">
-              <MSIcon name="check" style={{ fontSize: 13 }} /> Salvar
-            </button>
+            <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
+              <button className="flex-1 h-8 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Cancelar</button>
+              <button className="flex-1 h-8 text-xs font-semibold text-white rounded-lg flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 transition-colors">
+                <MSIcon name="check" style={{ fontSize: 13 }} /> Salvar
+              </button>
+            </div>
           </div>
-        </div>
         )}
       </div>
 
