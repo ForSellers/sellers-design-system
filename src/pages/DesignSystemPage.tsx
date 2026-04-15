@@ -2096,6 +2096,392 @@ function CalendarPreview() {
   );
 }
 
+// ─── ANIMATION DEMOS (banner-in, kpi-in, pulse-err) ─────────────────────────
+
+function BannerInDemo() {
+  const [key, setKey] = useState(0);
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
+      <div className="w-full h-16 flex items-center justify-center">
+        <div key={key} className={`w-full p-2 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 ${key > 0 ? "animate-banner-in" : ""}`}>
+          <MSIcon name="mail_lock" className="text-red-500 text-[14px] flex-shrink-0" />
+          <p className="text-[10px] font-semibold text-red-800 truncate">Falha no envio</p>
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Banner in</p>
+        <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-banner-in</p>
+        <button onClick={() => setKey(k => k + 1)} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+      </div>
+    </div>
+  );
+}
+
+function KpiInStaggerDemo() {
+  const [key, setKey] = useState(0);
+  const colors = ["#dc2626", "#2563eb", "#059669"];
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
+      <div className="flex flex-col gap-1.5 w-full h-16 justify-center">
+        {colors.map((c, i) => (
+          <div
+            key={`${key}-${i}`}
+            className={`h-4 rounded border border-slate-100 bg-slate-50/80 border-l-2 ${key > 0 ? "animate-kpi-in" : ""}`}
+            style={{ animationDelay: `${i * 70}ms`, borderLeftColor: c }}
+          />
+        ))}
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">KPI Stagger</p>
+        <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-kpi-in + delay</p>
+        <button onClick={() => setKey(k => k + 1)} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+      </div>
+    </div>
+  );
+}
+
+function PulseErrDemo() {
+  const [key, setKey] = useState(0);
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
+      <div className="w-20 h-16 flex items-center justify-center">
+        <div
+          key={key}
+          className={`w-10 h-10 rounded-xl bg-red-50 border border-l-4 flex items-center justify-center ${key > 0 ? "animate-pulse-err" : ""}`}
+          style={{ borderLeftColor: "#dc2626", borderColor: "#fca5a5" }}
+        >
+          <MSIcon name="mail_lock" className="text-[18px] text-red-600" />
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Pulse err</p>
+        <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-pulse-err</p>
+        <p className="text-[9px] text-slate-400">3 ondas, para sozinho</p>
+        <button onClick={() => setKey(k => k + 1)} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── DETAIL HERO PREVIEW ─────────────────────────────────────────────────────
+
+function DetailHeroPreview() {
+  const STATUS_CFG: Record<string, { label: string; icon: string; bg: string; text: string; border: string }> = {
+    enviado:     { label: "Enviado à cooperativa", icon: "mark_email_read", bg: "#dbeafe", text: "#1d4ed8", border: "#93c5fd" },
+    erro_email:  { label: "Erro no envio",          icon: "mail_lock",       bg: "#fee2e2", text: "#b91c1c", border: "#fca5a5" },
+    reembolsado: { label: "Reembolsado",            icon: "task_alt",        bg: "#d1fae5", text: "#047857", border: "#6ee7b7" },
+  };
+
+  const [status, setStatus] = useState<"enviado" | "erro_email" | "reembolsado">("enviado");
+  const cfg = STATUS_CFG[status];
+
+  return (
+    <div className="space-y-4">
+      {/* Controls */}
+      <div className="flex gap-2 flex-wrap">
+        {(["enviado", "erro_email", "reembolsado"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            className="h-7 px-3 text-xs rounded-lg border transition-colors"
+            style={status === s
+              ? { backgroundColor: STATUS_CFG[s].bg, borderColor: STATUS_CFG[s].border, color: STATUS_CFG[s].text }
+              : undefined}
+          >
+            {STATUS_CFG[s].label}
+          </button>
+        ))}
+      </div>
+
+      {/* Hero card */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-lg">
+        <div className="px-5 py-4 flex items-center gap-4 flex-wrap">
+          {/* Avatar coral */}
+          <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 select-none"
+            style={{ backgroundColor: "#E8533A" }}>
+            AS
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-semibold text-slate-900 leading-tight">Ana Silva</p>
+            <p className="text-xs text-slate-500 mt-0.5">ana.silva@sellers.com.br</p>
+            <span className="inline-block mt-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+              Comercial
+            </span>
+          </div>
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            <p className="text-2xl font-bold tabular-nums text-slate-900 leading-tight">R$ 1.250,00</p>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap"
+              style={{ backgroundColor: cfg.bg, color: cfg.text, border: `1px solid ${cfg.border}` }}>
+              <MSIcon name={cfg.icon} style={{ fontSize: "15px" }} />
+              {cfg.label}
+            </span>
+          </div>
+        </div>
+        {/* Metadata bar */}
+        <div className="px-5 py-2.5 border-t border-slate-100 bg-slate-50/60 flex items-center gap-5 flex-wrap">
+          {[
+            { icon: "store", text: "Restaurante Bom Sabor" },
+            { icon: "event", text: "10/04/2026" },
+            { icon: "category", text: "Alimentação" },
+          ].map(({ icon, text }) => (
+            <div key={icon} className="flex items-center gap-1.5 text-xs text-slate-500">
+              <MSIcon name={icon} style={{ fontSize: "14px" }} className="text-slate-400" />
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* InfoRow example */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-xs">
+        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
+          <MSIcon name="receipt_long" className="text-slate-400" style={{ fontSize: "18px" }} />
+          <h3 className="text-sm font-semibold text-slate-700">Despesa</h3>
+        </div>
+        <div className="p-5">
+          {[
+            { label: "Valor", value: "R$ 1.250,00", bold: true },
+            { label: "Data", value: "10/04/2026", bold: false },
+            { label: "Categoria", value: "Alimentação", bold: false },
+          ].map(({ label, value, bold }) => (
+            <div key={label} className="flex items-start justify-between gap-4 py-2.5 border-b border-slate-50 last:border-0">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5 flex-shrink-0">{label}</span>
+              <span className={`text-sm text-slate-800 text-right ${bold ? "font-bold tabular-nums" : ""}`}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── BANNERS PREVIEW ─────────────────────────────────────────────────────────
+
+function BannersPreview() {
+  return (
+    <div className="space-y-3 max-w-lg">
+      {/* Erro */}
+      <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+        <MSIcon name="mail_lock" className="text-red-500 flex-shrink-0" style={{ fontSize: "20px" }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-red-800">Falha no envio do email</p>
+          <p className="text-xs text-red-600 mt-0.5">O email não foi entregue. Clique para reenviar.</p>
+        </div>
+        <button
+          className="flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-xl text-white flex-shrink-0"
+          style={{ backgroundColor: "#dc2626" }}
+        >
+          <MSIcon name="refresh" style={{ fontSize: "16px" }} />
+          Reenviar
+        </button>
+      </div>
+
+      {/* Aguardando confirmação */}
+      <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+        <MSIcon name="mark_email_read" className="text-emerald-600 flex-shrink-0" style={{ fontSize: "20px" }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-emerald-800">Email enviado à cooperativa</p>
+          <p className="text-xs text-emerald-600 mt-0.5">Após o pagamento, confirme abaixo para encerrar.</p>
+        </div>
+        <button
+          className="flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-xl text-white flex-shrink-0"
+          style={{ backgroundColor: "#059669" }}
+        >
+          <MSIcon name="check_circle" style={{ fontSize: "16px" }} />
+          Confirmar
+        </button>
+      </div>
+
+      {/* Finalizado (sem botão) */}
+      <div className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+        <MSIcon name="task_alt" className="text-emerald-500 flex-shrink-0" style={{ fontSize: "20px" }} />
+        <p className="text-sm text-slate-600">Reembolso finalizado. Nenhuma ação necessária.</p>
+      </div>
+
+      {/* Aviso âmbar (informativo) */}
+      <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <MSIcon name="info" className="text-amber-500 flex-shrink-0" style={{ fontSize: "14px" }} />
+        <p className="text-xs text-amber-700">Funcionário não encontrado no cadastro do RH.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── TIMELINE PREVIEW ────────────────────────────────────────────────────────
+
+function TimelinePreview() {
+  const events = [
+    { tipo: "reembolso_criado",            label: "Solicitação criada",          icon: "add_circle",       color: "#1d4ed8", bg: "#eff6ff", border: "#bfdbfe", user: "ana.silva@sellers.com.br",  date: "10/04/2026 09:12" },
+    { tipo: "email_cooperativa_enviado",   label: "Email enviado à cooperativa", icon: "mark_email_read",  color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0", user: "sistema",                  date: "10/04/2026 09:13" },
+    { tipo: "email_cooperativa_reenviado", label: "Email reenviado",             icon: "refresh",          color: "#1d4ed8", bg: "#eff6ff", border: "#bfdbfe", user: "rh@sellers.com.br",        date: "11/04/2026 14:05" },
+    { tipo: "reembolsado",                 label: "Pagamento confirmado",        icon: "payments",         color: "#065f46", bg: "#d1fae5", border: "#6ee7b7", user: "rh@sellers.com.br",        date: "14/04/2026 10:30" },
+  ];
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-sm">
+      <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MSIcon name="history" className="text-slate-400" style={{ fontSize: "18px" }} />
+          <h3 className="text-sm font-semibold text-slate-700">Histórico</h3>
+        </div>
+        <span className="text-xs font-medium bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full tabular-nums">
+          {events.length} eventos
+        </span>
+      </div>
+      <div className="p-5">
+        <ol className="relative border-l-2 border-slate-100 ml-2 space-y-5">
+          {events.map((ev, i) => (
+            <li key={i} className="ml-5">
+              <span
+                className="absolute -left-[11px] w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                style={{ backgroundColor: ev.bg, borderColor: ev.border }}
+              >
+                <MSIcon name={ev.icon} style={{ fontSize: "11px", color: ev.color }} />
+              </span>
+              <p className="text-sm font-medium" style={{ color: ev.color }}>{ev.label}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{ev.user} · {ev.date}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+}
+
+// ─── EMAIL INPUT PREVIEW ─────────────────────────────────────────────────────
+
+const DS_EMAIL_DOMAINS = ["sellers.com.br", "gmail.com", "outlook.com", "hotmail.com", "yahoo.com.br"];
+const DS_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function DSEmailInput() {
+  const [value, setValue] = useState("");
+  const [open, setOpen] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const hasAt = value.includes("@");
+  const localPart = hasAt ? value.split("@")[0] : value;
+  const afterAt = hasAt ? value.split("@")[1] ?? "" : "";
+
+  const suggestions = hasAt
+    ? DS_EMAIL_DOMAINS.filter((d) => d.toLowerCase().startsWith(afterAt.toLowerCase()) && d !== afterAt)
+    : [];
+
+  const isValid = DS_EMAIL_RE.test(value);
+  const isError = touched && value.length > 0 && !isValid;
+
+  useEffect(() => {
+    function h(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const v = e.target.value;
+    setValue(v);
+    const sug = v.includes("@")
+      ? DS_EMAIL_DOMAINS.filter((d) => d.toLowerCase().startsWith((v.split("@")[1] ?? "").toLowerCase()) && d !== (v.split("@")[1] ?? ""))
+      : [];
+    setOpen(v.includes("@") && sug.length > 0);
+  }
+
+  const borderClass = isError
+    ? "border-red-400 focus:ring-red-300"
+    : isValid && value.length > 0
+    ? "border-emerald-300 focus:ring-emerald-300"
+    : "border-slate-200 focus:ring-blue-400";
+
+  return (
+    <div ref={wrapRef} className="relative max-w-xs">
+      <div className="relative">
+        <input
+          type="email"
+          value={value}
+          onChange={handleChange}
+          onFocus={() => { if (hasAt && suggestions.length > 0) setOpen(true); }}
+          onBlur={() => { setTouched(true); setOpen(false); }}
+          placeholder="usuario@sellers.com.br"
+          autoComplete="off"
+          className={`w-full h-9 px-3 pr-9 text-sm border rounded-lg focus:outline-none focus:ring-2 bg-white transition-colors dark:bg-slate-800 dark:text-slate-100 ${borderClass}`}
+        />
+        {value.length > 0 && (
+          <span
+            className={`absolute right-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] pointer-events-none ${
+              isError ? "text-red-400" : isValid ? "text-emerald-500" : "text-slate-300"
+            }`}
+            aria-hidden="true"
+          >
+            {isError ? "error_outline" : isValid ? "check_circle" : "alternate_email"}
+          </span>
+        )}
+      </div>
+      {open && suggestions.length > 0 && (
+        <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+          {suggestions.map((domain) => (
+            <button
+              key={domain}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { setValue(`${localPart}@${domain}`); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-50 transition-colors text-left"
+            >
+              <MSIcon name="alternate_email" className="text-[15px] text-slate-400 flex-shrink-0" />
+              <span className="text-slate-500">{localPart}@</span>
+              <span className="font-medium text-slate-800">{domain}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmailInputPreview() {
+  return (
+    <div className="space-y-5">
+      <SubSection title="Interativo — digite um email ou '@' para ver o autocomplete">
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Email do RH
+          </label>
+          <DSEmailInput />
+          <p className="text-[11px] text-slate-400">Borda fica azul enquanto digita · vermelho só após blur+inválido · verde quando válido</p>
+        </div>
+      </SubSection>
+
+      <SubSection title="Estados fixos">
+        <div className="flex flex-wrap gap-4 items-start">
+          {/* Vazio */}
+          <div className="space-y-1">
+            <p className="text-[11px] text-slate-400">Vazio</p>
+            <div className="relative max-w-[200px]">
+              <input readOnly placeholder="usuario@..." className="w-full h-9 px-3 text-sm border border-slate-200 rounded-lg bg-white" />
+            </div>
+          </div>
+          {/* Válido */}
+          <div className="space-y-1">
+            <p className="text-[11px] text-slate-400">Válido</p>
+            <div className="relative max-w-[200px]">
+              <input readOnly value="rh@sellers.com.br" className="w-full h-9 px-3 pr-9 text-sm border border-emerald-300 rounded-lg bg-white" />
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-emerald-500 pointer-events-none">check_circle</span>
+            </div>
+          </div>
+          {/* Inválido (após blur) */}
+          <div className="space-y-1">
+            <p className="text-[11px] text-slate-400">Inválido (pós-blur)</p>
+            <div className="relative max-w-[200px]">
+              <input readOnly value="nao-e-email" className="w-full h-9 px-3 pr-9 text-sm border border-red-400 rounded-lg bg-white" />
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-red-400 pointer-events-none">error_outline</span>
+            </div>
+          </div>
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
 // ─── NAV INDEX ────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
@@ -2120,6 +2506,10 @@ const SECTIONS = [
   { id: "agendamento",  label: "Agendamento",   icon: "schedule_send" },
   { id: "calendario",   label: "Calendário",    icon: "calendar_month" },
   { id: "exportpdf",    label: "Exportar PDF",  icon: "picture_as_pdf" },
+  { id: "detalhe",      label: "Detalhe",       icon: "account_circle" },
+  { id: "banners",      label: "Banners",       icon: "crisis_alert" },
+  { id: "timeline",     label: "Timeline",      icon: "history" },
+  { id: "emailinput",   label: "Email Input",   icon: "alternate_email" },
   { id: "animacoes",    label: "Animações",     icon: "motion_photos_on" },
   { id: "icons",        label: "Ícones",        icon: "interests" },
   { id: "graficos",     label: "Gráficos",      icon: "bar_chart" },
@@ -2532,6 +2922,36 @@ export function DesignSystemPage() {
           </Section>
         </div>
 
+        {/* ── 21. DETALHE / HERO ── */}
+        <div id="detalhe" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Detalhe / Hero Card" description="Padrão para páginas de detalhe (/rh/reembolsos/:id etc). Avatar com iniciais coral, valor em destaque, StatusBadge inline-style e metadata bar.">
+            <SubSection title="Hero Card + InfoRows">
+              <DetailHeroPreview />
+            </SubSection>
+          </Section>
+        </div>
+
+        {/* ── 22. BANNERS CONTEXTUAIS ── */}
+        <div id="banners" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Banners Contextuais" description="Faixas de ação que aparecem abaixo do hero em páginas de detalhe. 4 variantes: erro (vermelho), aguardando (verde), finalizado (slate) e aviso (âmbar).">
+            <BannersPreview />
+          </Section>
+        </div>
+
+        {/* ── 23. TIMELINE ── */}
+        <div id="timeline" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Timeline / Histórico" description="Lista vertical com linha lateral + círculos coloridos por tipo de evento. Usado no histórico de auditoria de reembolsos e despesas.">
+            <TimelinePreview />
+          </Section>
+        </div>
+
+        {/* ── 24. EMAIL INPUT ── */}
+        <div id="emailinput" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Email Input" description="Input com autocomplete de domínio ao digitar '@', validação diferida (erro só após blur) e ícone inline de estado (neutro/válido/inválido).">
+            <EmailInputPreview />
+          </Section>
+        </div>
+
         {/* ── 20. ANIMAÇÕES ── */}
         <div id="animacoes" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Animações" description="Animações de produção e showcase premium com o ícone Óculos Sellers. Dark stage, glow, spring physics, parallax e stroke draw.">
@@ -2540,6 +2960,16 @@ export function DesignSystemPage() {
             </SubSection>
             <SubSection title="Produção — modal-in, fade-in, countup-bar & AI dots">
               <ExtraAnimationsGrid />
+            </SubSection>
+            <SubSection title="Produção — banner-in, kpi-in (stagger), pulse-err (3 ondas, para)">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {/* banner-in */}
+                <BannerInDemo />
+                {/* kpi-in stagger */}
+                <KpiInStaggerDemo />
+                {/* pulse-err */}
+                <PulseErrDemo />
+              </div>
             </SubSection>
             <SubSection title="Óculos Showcase">
               <TailwindAnimsGrid />
@@ -2568,7 +2998,7 @@ export function DesignSystemPage() {
 
         {/* Footer */}
         <div className="text-center py-6 border-t border-slate-200 dark:border-slate-700/50 mt-4">
-          <p className="text-xs text-slate-400 dark:text-slate-500">Sellers Sistema Financeiro · Design System v0.2 · 2026</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Sellers Sistema Financeiro · Design System v0.3 · 2026</p>
           <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1">Inter · Material Symbols Outlined · Tailwind CSS 3.3 · Radix UI</p>
         </div>
       </div>
