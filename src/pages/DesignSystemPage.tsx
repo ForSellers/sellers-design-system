@@ -288,17 +288,181 @@ function TablePreview() {
 
 // ─── SIDEBAR PREVIEW ─────────────────────────────────────────────────────────
 
-function SidebarPreview() {
-  const [activeItem, setActiveItem] = useState("Contas a Pagar");
-
-  const S = {
+const SIDEBAR_THEMES = {
+  dark: {
+    bg: "#0a1628",
     inactive: "#94a3b8",
     active: "#f1f5f9",
     activeIcon: "#E8533A",
     activeBg: "rgba(241,245,249,0.07)",
+    hoverBg: "rgba(241,245,249,0.04)",
     divider: "rgba(255,255,255,0.08)",
     sectionLabel: "#475569",
+    badgeBg: "rgba(255,255,255,0.06)",
+    badgeText: "#64748b",
+    logoBg: "rgba(255,255,255,0.08)",
+    border: "transparent",
+    shadow: "none",
+    userBg: "rgba(255,255,255,0.04)",
+    notifDot: "#E8533A",
+  },
+  light: {
+    bg: "#ffffff",
+    inactive: "#64748b",
+    active: "#1e293b",
+    activeIcon: "#E8533A",
+    activeBg: "rgba(232,83,58,0.08)",
+    hoverBg: "#f8fafc",
+    divider: "#e2e8f0",
+    sectionLabel: "#94a3b8",
+    badgeBg: "#f1f5f9",
+    badgeText: "#64748b",
+    logoBg: "rgba(232,83,58,0.06)",
+    border: "#e2e8f0",
+    shadow: "0 1px 3px rgba(0,0,0,0.06)",
+    userBg: "#f8fafc",
+    notifDot: "#E8533A",
+  },
+};
+
+function SidebarVariant({ theme, items, activeItem, onSelect }: {
+  theme: "dark" | "light";
+  items: { icon: string; label: string; badge?: string }[];
+  activeItem: string;
+  onSelect: (label: string) => void;
+}) {
+  const S = SIDEBAR_THEMES[theme];
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const getBg = (label: string) => {
+    if (label === activeItem) return S.activeBg;
+    if (label === hovered) return S.hoverBg;
+    return undefined;
   };
+
+  return (
+    <div
+      className="flex rounded-xl overflow-x-auto overflow-y-hidden shadow-lg"
+      style={{ backgroundColor: S.bg, border: `1px solid ${S.border}`, boxShadow: S.shadow, height: 400 }}
+    >
+      <div className="flex min-w-[360px] w-full">
+        {/* Compacto */}
+        <div className="w-16 flex flex-col items-center py-4 gap-1" style={{ borderRight: `1px solid ${S.divider}` }}>
+          <div className="w-10 h-10 rounded-xl overflow-hidden mb-3 flex items-center justify-center" style={{ backgroundColor: S.logoBg }}>
+            <SellersIcon size={26} />
+          </div>
+          {items.map((it) => {
+            const isActive = it.label === activeItem;
+            const isHovered = it.label === hovered;
+            return (
+              <button
+                key={it.label}
+                onClick={() => onSelect(it.label)}
+                onMouseEnter={() => setHovered(it.label)}
+                onMouseLeave={() => setHovered(null)}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors relative"
+                style={getBg(it.label) ? { backgroundColor: getBg(it.label) } : undefined}
+                title={it.label}
+              >
+                <MSIcon
+                  name={it.icon}
+                  className="text-[22px]"
+                  style={{ color: isActive ? S.activeIcon : isHovered ? S.active : S.inactive }}
+                />
+                {it.badge && (
+                  <span
+                    className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
+                    style={{ backgroundColor: S.notifDot }}
+                  />
+                )}
+              </button>
+            );
+          })}
+          {/* User avatar compact */}
+          <div className="flex-1" />
+          <div className="border-t mb-2 mx-2 w-8" style={{ borderColor: S.divider }} />
+          <span
+            className="flex items-center justify-center w-8 h-8 rounded-full text-white text-[10px] font-bold"
+            style={{ backgroundColor: "#E8533A" }}
+            title="Igor Oliveira"
+          >
+            IO
+          </span>
+        </div>
+        {/* Expandido */}
+        <div className="flex-1 flex flex-col py-4 px-2 min-w-0">
+          <div className="flex items-center gap-3 px-2 pb-4">
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: S.logoBg }}>
+              <SellersIcon size={26} />
+            </div>
+            <div>
+              <p className="font-bold text-sm leading-tight" style={{ color: S.active }}>Sellers</p>
+              <p className="text-[11px]" style={{ color: S.inactive }}>Sistema Financeiro</p>
+            </div>
+          </div>
+          <div className="border-t mx-2 mb-3" style={{ borderColor: S.divider }} />
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: S.sectionLabel }}>Módulos</p>
+          {items.map((it) => {
+            const isActive = it.label === activeItem;
+            const isHovered = it.label === hovered;
+            return (
+              <button
+                key={it.label}
+                onClick={() => onSelect(it.label)}
+                onMouseEnter={() => setHovered(it.label)}
+                onMouseLeave={() => setHovered(null)}
+                className="flex items-center gap-3 py-2.5 rounded-xl w-full text-left transition-colors"
+                style={{
+                  backgroundColor: getBg(it.label),
+                  borderLeft: isActive ? `3px solid ${S.activeIcon}` : "3px solid transparent",
+                  paddingLeft: 9,
+                  paddingRight: 12,
+                }}
+              >
+                <MSIcon
+                  name={it.icon}
+                  className="text-[20px]"
+                  style={{ color: isActive ? S.activeIcon : isHovered ? S.active : S.inactive }}
+                />
+                <span className="text-sm font-medium truncate" style={{ color: isActive ? S.active : isHovered ? S.active : S.inactive }}>
+                  {it.label}
+                </span>
+                {it.badge && (
+                  <span
+                    className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0"
+                    style={{ backgroundColor: S.badgeBg, color: S.badgeText }}
+                  >
+                    {it.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          {/* User area expanded */}
+          <div className="flex-1" />
+          <div className="border-t mx-2 mt-2" style={{ borderColor: S.divider }} />
+          <div className="flex items-center gap-3 px-3 py-3 rounded-xl mx-1 mt-2" style={{ backgroundColor: S.userBg }}>
+            <span
+              className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-white text-[11px] font-bold"
+              style={{ backgroundColor: "#E8533A" }}
+            >
+              IO
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold truncate" style={{ color: S.active }}>Igor Oliveira</p>
+              <p className="text-[10px] truncate" style={{ color: S.inactive }}>CFO</p>
+            </div>
+            <MSIcon name="more_horiz" className="ml-auto text-[18px]" style={{ color: S.inactive }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SidebarPreview() {
+  const [darkActive, setDarkActive] = useState("Contas a Pagar");
+  const [lightActive, setLightActive] = useState("Contas a Pagar");
 
   const items = [
     { icon: "payments",     label: "Contas a Pagar" },
@@ -310,61 +474,14 @@ function SidebarPreview() {
   ];
 
   return (
-    <div className="flex rounded-xl overflow-x-auto overflow-y-hidden shadow-lg border border-slate-200" style={{ backgroundColor: "#0a1628", height: 340 }}>
-      <div className="flex min-w-[360px] w-full">
-      {/* Compacto */}
-      <div className="w-16 flex flex-col items-center py-4 gap-1" style={{ borderRight: `1px solid ${S.divider}` }}>
-        <div className="w-10 h-10 rounded-xl overflow-hidden mb-3 flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-          <SellersIcon size={26} />
-        </div>
-        {items.map((it) => {
-          const isActive = it.label === activeItem;
-          return (
-            <button
-              key={it.label}
-              onClick={() => setActiveItem(it.label)}
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
-              style={isActive ? { backgroundColor: S.activeBg } : undefined}
-              title={it.label}
-            >
-              <MSIcon name={it.icon} className="text-[22px]" style={{ color: isActive ? S.activeIcon : S.inactive }} />
-            </button>
-          );
-        })}
+    <div className="space-y-6">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Dark</p>
+        <SidebarVariant theme="dark" items={items} activeItem={darkActive} onSelect={setDarkActive} />
       </div>
-      {/* Expandido */}
-      <div className="flex-1 flex flex-col py-4 px-2 min-w-0">
-        <div className="flex items-center gap-3 px-2 pb-4">
-          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-            <SellersIcon size={26} />
-          </div>
-          <div>
-            <p className="font-bold text-sm leading-tight" style={{ color: S.active }}>Sellers</p>
-            <p className="text-[11px]" style={{ color: S.inactive }}>Sistema Financeiro</p>
-          </div>
-        </div>
-        <div className="border-t mx-2 mb-3" style={{ borderColor: S.divider }} />
-        <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: S.sectionLabel }}>Módulos</p>
-        {items.map((it) => {
-          const isActive = it.label === activeItem;
-          return (
-            <button
-              key={it.label}
-              onClick={() => setActiveItem(it.label)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-left transition-colors"
-              style={isActive ? { backgroundColor: S.activeBg } : undefined}
-            >
-              <MSIcon name={it.icon} className="text-[20px]" style={{ color: isActive ? S.activeIcon : S.inactive }} />
-              <span className="text-sm font-medium truncate" style={{ color: isActive ? S.active : S.inactive }}>{it.label}</span>
-              {it.badge && (
-                <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#64748b" }}>
-                  {it.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Light</p>
+        <SidebarVariant theme="light" items={items} activeItem={lightActive} onSelect={setLightActive} />
       </div>
     </div>
   );
@@ -2847,7 +2964,7 @@ export function DesignSystemPage() {
 
         {/* ── 10. SIDEBAR ── */}
         <div id="sidebar" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
-          <Section title="Sidebar" description="Dark theme #0a1628. Modo compacto (ícones) e expandido. Clique para trocar item ativo.">
+          <Section title="Sidebar" description="Variantes Dark (#0a1628) e Light (#ffffff). Modo compacto e expandido com hover, barra ativa, avatar e notificações.">
             <SidebarPreview />
           </Section>
         </div>
