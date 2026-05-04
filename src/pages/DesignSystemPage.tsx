@@ -1,4 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { RealtimeBadge } from "../components/RealtimeBadge";
+import { Fab } from "../components/Fab";
+import { EmptyState } from "../components/EmptyState";
+import { ErrorState } from "../components/ErrorState";
+import { formatBRL, formatBRLCompact, formatDate, formatRelativeTime } from "../lib/format";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -2630,7 +2635,172 @@ const SECTIONS = [
   { id: "animacoes",    label: "Animações",     icon: "motion_photos_on" },
   { id: "icons",        label: "Ícones",        icon: "interests" },
   { id: "graficos",     label: "Gráficos",      icon: "bar_chart" },
+  { id: "realtime",     label: "Real-time",     icon: "sensors" },
+  { id: "fab",          label: "FAB",           icon: "add_circle" },
+  { id: "estados",      label: "Empty / Error", icon: "report" },
+  { id: "format",       label: "Formatadores",  icon: "functions" },
 ];
+
+// ─── REAL-TIME BADGE SHOWCASE ────────────────────────────────────────────────
+
+function RealtimeBadgeShowcase() {
+  const now = Date.now();
+  return (
+    <div className="space-y-5">
+      <SubSection title="Modos">
+        <div className="flex flex-wrap gap-3 items-center">
+          <RealtimeBadge mode="stream" />
+          <RealtimeBadge mode="poll" intervalMs={30_000} lastUpdateAt={now - 4_000} />
+          <RealtimeBadge mode="poll" intervalMs={15_000} lastUpdateAt={now - 12_000} />
+          <RealtimeBadge mode="snapshot" lastUpdateAt={now - 90 * 60 * 1000} />
+          <RealtimeBadge mode="stream" paused />
+          <RealtimeBadge mode="poll" offline />
+        </div>
+      </SubSection>
+      <SubSection title="Em contexto · cabeçalho de seção">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Operação</p>
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Pagamentos travados</h4>
+            </div>
+            <RealtimeBadge mode="poll" intervalMs={30_000} lastUpdateAt={now - 7_000} />
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">conteúdo da seção…</p>
+        </div>
+      </SubSection>
+      <SubSection title="Tokens">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-[11px] font-mono">
+          <Chip label="stream" value="emerald-50/700" />
+          <Chip label="poll" value="blue-50/700" />
+          <Chip label="snapshot" value="slate-100/700" />
+          <Chip label="paused" value="amber-50/700" />
+          <Chip label="offline" value="red-50/700" />
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
+// ─── FAB SHOWCASE ────────────────────────────────────────────────────────────
+
+function FabShowcase() {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <div className="space-y-5">
+      <SubSection title="Variantes (estático para preview)">
+        <div className="flex flex-wrap gap-6 items-center">
+          <Fab
+            position="static"
+            icon={<MSIcon name="visibility" />}
+            label="Tapar dados sensíveis"
+          />
+          <Fab
+            position="static"
+            variant="subtle"
+            icon={<MSIcon name="help" />}
+            label="Ajuda"
+          />
+          <Fab
+            position="static"
+            icon={<MSIcon name={pressed ? "visibility_off" : "visibility"} />}
+            label={pressed ? "Mostrar dados" : "Tapar dados"}
+            pressed={pressed}
+            onClick={() => setPressed((p) => !p)}
+          />
+          <span className="text-[11px] font-mono text-slate-400">↑ clica e vira pressed</span>
+        </div>
+      </SubSection>
+      <SubSection title="Padrão de uso">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-4 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p>1 FAB por viewport. Se houver mais de uma ação primária persistente, repensar a hierarquia.</p>
+          <p className="mt-2">Em produção, omitir <code className="font-mono">position</code> mantém o default <code className="font-mono">fixed bottom-6 right-6</code>.</p>
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
+// ─── EMPTY / ERROR SHOWCASE ──────────────────────────────────────────────────
+
+function EmptyErrorShowcase() {
+  return (
+    <div className="grid md:grid-cols-2 gap-4">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
+        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-widest text-slate-400">EmptyState</div>
+        <EmptyState
+          icon={<MSIcon name="task_alt" />}
+          title="Nada por aqui"
+          description="Nenhuma conta com saldo negativo no filtro atual. Ajuste os filtros ou volte mais tarde."
+          action={
+            <button className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-sm">
+              <MSIcon name="filter_alt_off" className="text-[15px]" />
+              Limpar filtros
+            </button>
+          }
+        />
+      </div>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
+        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-widest text-slate-400">ErrorState</div>
+        <div className="p-4">
+          <ErrorState
+            title="Falha ao carregar"
+            description="Não conseguimos contatar o BFF. Os dados exibidos podem estar desatualizados."
+            error={new Error("ECONNREFUSED 127.0.0.1:8088")}
+            retry={() => alert("retry()")}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FORMAT SHOWCASE ─────────────────────────────────────────────────────────
+
+function FormatShowcase() {
+  const samples = [0, 12.5, 1234.56, -98.7, 1_234_567.89, -2_500_000];
+  const now = Date.now();
+  return (
+    <div className="space-y-5">
+      <SubSection title="formatBRL · formatBRLCompact">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <tr>
+                <th className="text-left px-4 py-2">input</th>
+                <th className="text-right px-4 py-2">formatBRL</th>
+                <th className="text-right px-4 py-2">formatBRL · 0 dec</th>
+                <th className="text-right px-4 py-2">formatBRLCompact</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+              {samples.map((n) => (
+                <tr key={n}>
+                  <td className="px-4 py-1.5 font-mono text-xs text-slate-500">{n}</td>
+                  <td className="px-4 py-1.5 text-right font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatBRL(n)}</td>
+                  <td className="px-4 py-1.5 text-right font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatBRL(n, { decimals: 0 })}</td>
+                  <td className="px-4 py-1.5 text-right font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatBRLCompact(n)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SubSection>
+      <SubSection title="formatDate · formatRelativeTime">
+        <div className="grid sm:grid-cols-2 gap-3 text-sm">
+          <Chip label="short" value={formatDate(now)} />
+          <Chip label="long" value={formatDate(now, "long")} />
+          <Chip label="time" value={formatDate(now, "time")} />
+          <Chip label="dateTime" value={formatDate(now, "dateTime")} />
+          <Chip label="há 5min" value={formatRelativeTime(now - 5 * 60 * 1000)} />
+          <Chip label="há 2h" value={formatRelativeTime(now - 2 * 3600 * 1000)} />
+          <Chip label="ontem" value={formatRelativeTime(now - 24 * 3600 * 1000)} />
+          <Chip label="em 3min" value={formatRelativeTime(now + 3 * 60 * 1000)} />
+        </div>
+      </SubSection>
+    </div>
+  );
+}
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
@@ -3110,6 +3280,34 @@ export function DesignSystemPage() {
         <div id="graficos" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Paleta de Gráficos" description="Sequência de cores usada em Recharts bar/line/pie charts.">
             <ChartPalettePreview />
+          </Section>
+        </div>
+
+        {/* ── 14. REAL-TIME BADGE ── */}
+        <div id="realtime" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Real-time Badge" description="Sinalizador único para qualquer seção que faz polling, stream ou snapshot histórico. Use no cabeçalho de cards/listas — substitui badges ad-hoc.">
+            <RealtimeBadgeShowcase />
+          </Section>
+        </div>
+
+        {/* ── 15. FAB ── */}
+        <div id="fab" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Floating Action Button" description="Ação primária sempre acessível. 56×56px, sombra forte, fixed bottom-right por padrão. Aceita estado pressed (toggle).">
+            <FabShowcase />
+          </Section>
+        </div>
+
+        {/* ── 16. EMPTY / ERROR ── */}
+        <div id="estados" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Empty & Error States" description="Padrão para listas/tabelas vazias (sem ser erro) e para falhas de carregamento. Use sempre que uma query retornar [] ou falhar.">
+            <EmptyErrorShowcase />
+          </Section>
+        </div>
+
+        {/* ── 17. FORMATADORES ── */}
+        <div id="format" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Formatadores canônicos" description="Locale pt-BR. Importe sempre de @sellers/design-system/lib/format — não reescreva.">
+            <FormatShowcase />
           </Section>
         </div>
 
