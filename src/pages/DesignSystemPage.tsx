@@ -1,4 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { RealtimeBadge } from "../components/RealtimeBadge";
+import { Fab } from "../components/Fab";
+import { EmptyState } from "../components/EmptyState";
+import { ErrorState } from "../components/ErrorState";
+import { formatBRL, formatBRLCompact, formatDate, formatRelativeTime } from "../lib/format";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -288,17 +293,181 @@ function TablePreview() {
 
 // ─── SIDEBAR PREVIEW ─────────────────────────────────────────────────────────
 
-function SidebarPreview() {
-  const [activeItem, setActiveItem] = useState("Contas a Pagar");
-
-  const S = {
+const SIDEBAR_THEMES = {
+  dark: {
+    bg: "#0a1628",
     inactive: "#94a3b8",
     active: "#f1f5f9",
     activeIcon: "#E8533A",
     activeBg: "rgba(241,245,249,0.07)",
+    hoverBg: "rgba(241,245,249,0.04)",
     divider: "rgba(255,255,255,0.08)",
     sectionLabel: "#475569",
+    badgeBg: "rgba(255,255,255,0.06)",
+    badgeText: "#64748b",
+    logoBg: "rgba(255,255,255,0.08)",
+    border: "transparent",
+    shadow: "none",
+    userBg: "rgba(255,255,255,0.04)",
+    notifDot: "#E8533A",
+  },
+  light: {
+    bg: "#ffffff",
+    inactive: "#64748b",
+    active: "#1e293b",
+    activeIcon: "#E8533A",
+    activeBg: "rgba(232,83,58,0.08)",
+    hoverBg: "#f8fafc",
+    divider: "#e2e8f0",
+    sectionLabel: "#94a3b8",
+    badgeBg: "#f1f5f9",
+    badgeText: "#64748b",
+    logoBg: "rgba(232,83,58,0.06)",
+    border: "#e2e8f0",
+    shadow: "0 1px 3px rgba(0,0,0,0.06)",
+    userBg: "#f8fafc",
+    notifDot: "#E8533A",
+  },
+};
+
+function SidebarVariant({ theme, items, activeItem, onSelect }: {
+  theme: "dark" | "light";
+  items: { icon: string; label: string; badge?: string }[];
+  activeItem: string;
+  onSelect: (label: string) => void;
+}) {
+  const S = SIDEBAR_THEMES[theme];
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const getBg = (label: string) => {
+    if (label === activeItem) return S.activeBg;
+    if (label === hovered) return S.hoverBg;
+    return undefined;
   };
+
+  return (
+    <div
+      className="flex rounded-xl overflow-x-auto overflow-y-hidden shadow-lg"
+      style={{ backgroundColor: S.bg, border: `1px solid ${S.border}`, boxShadow: S.shadow, height: 400 }}
+    >
+      <div className="flex min-w-[360px] w-full">
+        {/* Compacto */}
+        <div className="w-16 flex flex-col items-center py-4 gap-1" style={{ borderRight: `1px solid ${S.divider}` }}>
+          <div className="w-10 h-10 rounded-xl overflow-hidden mb-3 flex items-center justify-center" style={{ backgroundColor: S.logoBg }}>
+            <SellersIcon size={26} />
+          </div>
+          {items.map((it) => {
+            const isActive = it.label === activeItem;
+            const isHovered = it.label === hovered;
+            return (
+              <button
+                key={it.label}
+                onClick={() => onSelect(it.label)}
+                onMouseEnter={() => setHovered(it.label)}
+                onMouseLeave={() => setHovered(null)}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors relative"
+                style={getBg(it.label) ? { backgroundColor: getBg(it.label) } : undefined}
+                title={it.label}
+              >
+                <MSIcon
+                  name={it.icon}
+                  className="text-[22px]"
+                  style={{ color: isActive ? S.activeIcon : isHovered ? S.active : S.inactive }}
+                />
+                {it.badge && (
+                  <span
+                    className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
+                    style={{ backgroundColor: S.notifDot }}
+                  />
+                )}
+              </button>
+            );
+          })}
+          {/* User avatar compact */}
+          <div className="flex-1" />
+          <div className="border-t mb-2 mx-2 w-8" style={{ borderColor: S.divider }} />
+          <span
+            className="flex items-center justify-center w-8 h-8 rounded-full text-white text-[10px] font-bold"
+            style={{ backgroundColor: "#E8533A" }}
+            title="Igor Oliveira"
+          >
+            IO
+          </span>
+        </div>
+        {/* Expandido */}
+        <div className="flex-1 flex flex-col py-4 px-2 min-w-0">
+          <div className="flex items-center gap-3 px-2 pb-4">
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: S.logoBg }}>
+              <SellersIcon size={26} />
+            </div>
+            <div>
+              <p className="font-bold text-sm leading-tight" style={{ color: S.active }}>Sellers</p>
+              <p className="text-[11px]" style={{ color: S.inactive }}>Sistema Financeiro</p>
+            </div>
+          </div>
+          <div className="border-t mx-2 mb-3" style={{ borderColor: S.divider }} />
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: S.sectionLabel }}>Módulos</p>
+          {items.map((it) => {
+            const isActive = it.label === activeItem;
+            const isHovered = it.label === hovered;
+            return (
+              <button
+                key={it.label}
+                onClick={() => onSelect(it.label)}
+                onMouseEnter={() => setHovered(it.label)}
+                onMouseLeave={() => setHovered(null)}
+                className="flex items-center gap-3 py-2.5 rounded-xl w-full text-left transition-colors"
+                style={{
+                  backgroundColor: getBg(it.label),
+                  borderLeft: isActive ? `3px solid ${S.activeIcon}` : "3px solid transparent",
+                  paddingLeft: 9,
+                  paddingRight: 12,
+                }}
+              >
+                <MSIcon
+                  name={it.icon}
+                  className="text-[20px]"
+                  style={{ color: isActive ? S.activeIcon : isHovered ? S.active : S.inactive }}
+                />
+                <span className="text-sm font-medium truncate" style={{ color: isActive ? S.active : isHovered ? S.active : S.inactive }}>
+                  {it.label}
+                </span>
+                {it.badge && (
+                  <span
+                    className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0"
+                    style={{ backgroundColor: S.badgeBg, color: S.badgeText }}
+                  >
+                    {it.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          {/* User area expanded */}
+          <div className="flex-1" />
+          <div className="border-t mx-2 mt-2" style={{ borderColor: S.divider }} />
+          <div className="flex items-center gap-3 px-3 py-3 rounded-xl mx-1 mt-2" style={{ backgroundColor: S.userBg }}>
+            <span
+              className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-white text-[11px] font-bold"
+              style={{ backgroundColor: "#E8533A" }}
+            >
+              IO
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold truncate" style={{ color: S.active }}>Igor Oliveira</p>
+              <p className="text-[10px] truncate" style={{ color: S.inactive }}>CFO</p>
+            </div>
+            <MSIcon name="more_horiz" className="ml-auto text-[18px]" style={{ color: S.inactive }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SidebarPreview() {
+  const [darkActive, setDarkActive] = useState("Contas a Pagar");
+  const [lightActive, setLightActive] = useState("Contas a Pagar");
 
   const items = [
     { icon: "payments",     label: "Contas a Pagar" },
@@ -310,61 +479,14 @@ function SidebarPreview() {
   ];
 
   return (
-    <div className="flex rounded-xl overflow-x-auto overflow-y-hidden shadow-lg border border-slate-200" style={{ backgroundColor: "#0a1628", height: 340 }}>
-      <div className="flex min-w-[360px] w-full">
-      {/* Compacto */}
-      <div className="w-16 flex flex-col items-center py-4 gap-1" style={{ borderRight: `1px solid ${S.divider}` }}>
-        <div className="w-10 h-10 rounded-xl overflow-hidden mb-3 flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-          <SellersIcon size={26} />
-        </div>
-        {items.map((it) => {
-          const isActive = it.label === activeItem;
-          return (
-            <button
-              key={it.label}
-              onClick={() => setActiveItem(it.label)}
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
-              style={isActive ? { backgroundColor: S.activeBg } : undefined}
-              title={it.label}
-            >
-              <MSIcon name={it.icon} className="text-[22px]" style={{ color: isActive ? S.activeIcon : S.inactive }} />
-            </button>
-          );
-        })}
+    <div className="space-y-6">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Dark</p>
+        <SidebarVariant theme="dark" items={items} activeItem={darkActive} onSelect={setDarkActive} />
       </div>
-      {/* Expandido */}
-      <div className="flex-1 flex flex-col py-4 px-2 min-w-0">
-        <div className="flex items-center gap-3 px-2 pb-4">
-          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-            <SellersIcon size={26} />
-          </div>
-          <div>
-            <p className="font-bold text-sm leading-tight" style={{ color: S.active }}>Sellers</p>
-            <p className="text-[11px]" style={{ color: S.inactive }}>Sistema Financeiro</p>
-          </div>
-        </div>
-        <div className="border-t mx-2 mb-3" style={{ borderColor: S.divider }} />
-        <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: S.sectionLabel }}>Módulos</p>
-        {items.map((it) => {
-          const isActive = it.label === activeItem;
-          return (
-            <button
-              key={it.label}
-              onClick={() => setActiveItem(it.label)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-left transition-colors"
-              style={isActive ? { backgroundColor: S.activeBg } : undefined}
-            >
-              <MSIcon name={it.icon} className="text-[20px]" style={{ color: isActive ? S.activeIcon : S.inactive }} />
-              <span className="text-sm font-medium truncate" style={{ color: isActive ? S.active : S.inactive }}>{it.label}</span>
-              {it.badge && (
-                <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#64748b" }}>
-                  {it.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Light</p>
+        <SidebarVariant theme="light" items={items} activeItem={lightActive} onSelect={setLightActive} />
       </div>
     </div>
   );
@@ -1149,45 +1271,42 @@ function RetryLoaderPreview() {
 
 function CountUpPreview() {
   const [key, setKey] = useState(0);
+  const [eased, setEased] = useState(0);
 
   const FORMATTERS = {
     brl: (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v),
     number: (v: number) => String(v),
   };
 
+  useEffect(() => {
+    setEased(0);
+    const startTime = performance.now();
+    let rafId: number;
+
+    function tick(timestamp: number) {
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / 400, 1);
+      const e = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setEased(e);
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [key]);
+
   function CountUpDemo({ to, type = "number", className = "" }: { to: number; type?: "brl" | "number"; className?: string }) {
     const format = FORMATTERS[type];
-    const [display, setDisplay] = useState(format(0));
-    const rafRef = useRef<number | null>(null);
-    const startRef = useRef<number | null>(null);
-
-    useEffect(() => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      startRef.current = performance.now();
-
-      function tick(timestamp: number) {
-        const elapsed = timestamp - startRef.current!;
-        const progress = Math.min(elapsed / 400, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        setDisplay(format(Math.round(to * eased)));
-        if (progress < 1) {
-          rafRef.current = requestAnimationFrame(tick);
-        } else {
-          setDisplay(format(to));
-        }
-      }
-
-      rafRef.current = requestAnimationFrame(tick);
-      return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-    }, [to, format, key]);
-
-    return <span className={className}>{display}</span>;
+    const value = eased === 1 ? to : Math.floor(to * eased);
+    return <span className={className}>{format(value)}</span>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <p className="text-xs text-slate-500 dark:text-slate-400">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms cubic ease-out. Clique em Replay.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Contador animado com <span className="font-mono">requestAnimationFrame</span> — 400ms ease-out exponencial. Clique em Replay.</p>
         <button
           onClick={() => setKey((k) => k + 1)}
           className="self-start sm:self-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex-shrink-0"
@@ -1195,7 +1314,7 @@ function CountUpPreview() {
           <MSIcon name="refresh" className="text-[13px]" /> Replay
         </button>
       </div>
-      <div key={key} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="rounded-xl border border-slate-200 shadow-sm px-4 py-3 border-l-4 border-l-blue-500 bg-blue-50">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Pagas / mes</p>
           <CountUpDemo to={31} type="number" className="text-2xl font-bold tabular-nums text-blue-900" />
@@ -2099,6 +2218,392 @@ function CalendarPreview() {
   );
 }
 
+// ─── ANIMATION DEMOS (banner-in, kpi-in, pulse-err) ─────────────────────────
+
+function BannerInDemo() {
+  const [key, setKey] = useState(0);
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
+      <div className="w-full h-16 flex items-center justify-center">
+        <div key={key} className={`w-full p-2 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 ${key > 0 ? "animate-banner-in" : ""}`}>
+          <MSIcon name="mail_lock" className="text-red-500 text-[14px] flex-shrink-0" />
+          <p className="text-[10px] font-semibold text-red-800 truncate">Falha no envio</p>
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Banner in</p>
+        <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-banner-in</p>
+        <button onClick={() => setKey(k => k + 1)} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+      </div>
+    </div>
+  );
+}
+
+function KpiInStaggerDemo() {
+  const [key, setKey] = useState(0);
+  const colors = ["#dc2626", "#2563eb", "#059669"];
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
+      <div className="flex flex-col gap-1.5 w-full h-16 justify-center">
+        {colors.map((c, i) => (
+          <div
+            key={`${key}-${i}`}
+            className={`h-4 rounded border border-slate-100 bg-slate-50/80 border-l-2 ${key > 0 ? "animate-kpi-in" : ""}`}
+            style={{ animationDelay: `${i * 70}ms`, borderLeftColor: c }}
+          />
+        ))}
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">KPI Stagger</p>
+        <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-kpi-in + delay</p>
+        <button onClick={() => setKey(k => k + 1)} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+      </div>
+    </div>
+  );
+}
+
+function PulseErrDemo() {
+  const [key, setKey] = useState(0);
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 py-7 px-4">
+      <div className="w-20 h-16 flex items-center justify-center">
+        <div
+          key={key}
+          className={`w-10 h-10 rounded-xl bg-red-50 border border-l-4 flex items-center justify-center ${key > 0 ? "animate-pulse-err" : ""}`}
+          style={{ borderLeftColor: "#dc2626", borderColor: "#fca5a5" }}
+        >
+          <MSIcon name="mail_lock" className="text-[18px] text-red-600" />
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Pulse err</p>
+        <p className="text-[10px] font-mono text-slate-400 mt-0.5">animate-pulse-err</p>
+        <p className="text-[9px] text-slate-400">3 ondas, para sozinho</p>
+        <button onClick={() => setKey(k => k + 1)} className="text-[10px] text-blue-600 font-medium mt-1">replay</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── DETAIL HERO PREVIEW ─────────────────────────────────────────────────────
+
+function DetailHeroPreview() {
+  const STATUS_CFG: Record<string, { label: string; icon: string; bg: string; text: string; border: string }> = {
+    enviado:     { label: "Enviado à cooperativa", icon: "mark_email_read", bg: "#dbeafe", text: "#1d4ed8", border: "#93c5fd" },
+    erro_email:  { label: "Erro no envio",          icon: "mail_lock",       bg: "#fee2e2", text: "#b91c1c", border: "#fca5a5" },
+    reembolsado: { label: "Reembolsado",            icon: "task_alt",        bg: "#d1fae5", text: "#047857", border: "#6ee7b7" },
+  };
+
+  const [status, setStatus] = useState<"enviado" | "erro_email" | "reembolsado">("enviado");
+  const cfg = STATUS_CFG[status];
+
+  return (
+    <div className="space-y-4">
+      {/* Controls */}
+      <div className="flex gap-2 flex-wrap">
+        {(["enviado", "erro_email", "reembolsado"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            className="h-7 px-3 text-xs rounded-lg border transition-colors"
+            style={status === s
+              ? { backgroundColor: STATUS_CFG[s].bg, borderColor: STATUS_CFG[s].border, color: STATUS_CFG[s].text }
+              : undefined}
+          >
+            {STATUS_CFG[s].label}
+          </button>
+        ))}
+      </div>
+
+      {/* Hero card */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-lg">
+        <div className="px-5 py-4 flex items-center gap-4 flex-wrap">
+          {/* Avatar coral */}
+          <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 select-none"
+            style={{ backgroundColor: "#E8533A" }}>
+            AS
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-semibold text-slate-900 leading-tight">Ana Silva</p>
+            <p className="text-xs text-slate-500 mt-0.5">ana.silva@sellers.com.br</p>
+            <span className="inline-block mt-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+              Comercial
+            </span>
+          </div>
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            <p className="text-2xl font-bold tabular-nums text-slate-900 leading-tight">R$ 1.250,00</p>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap"
+              style={{ backgroundColor: cfg.bg, color: cfg.text, border: `1px solid ${cfg.border}` }}>
+              <MSIcon name={cfg.icon} style={{ fontSize: "15px" }} />
+              {cfg.label}
+            </span>
+          </div>
+        </div>
+        {/* Metadata bar */}
+        <div className="px-5 py-2.5 border-t border-slate-100 bg-slate-50/60 flex items-center gap-5 flex-wrap">
+          {[
+            { icon: "store", text: "Restaurante Bom Sabor" },
+            { icon: "event", text: "10/04/2026" },
+            { icon: "category", text: "Alimentação" },
+          ].map(({ icon, text }) => (
+            <div key={icon} className="flex items-center gap-1.5 text-xs text-slate-500">
+              <MSIcon name={icon} style={{ fontSize: "14px" }} className="text-slate-400" />
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* InfoRow example */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-xs">
+        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
+          <MSIcon name="receipt_long" className="text-slate-400" style={{ fontSize: "18px" }} />
+          <h3 className="text-sm font-semibold text-slate-700">Despesa</h3>
+        </div>
+        <div className="p-5">
+          {[
+            { label: "Valor", value: "R$ 1.250,00", bold: true },
+            { label: "Data", value: "10/04/2026", bold: false },
+            { label: "Categoria", value: "Alimentação", bold: false },
+          ].map(({ label, value, bold }) => (
+            <div key={label} className="flex items-start justify-between gap-4 py-2.5 border-b border-slate-50 last:border-0">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5 flex-shrink-0">{label}</span>
+              <span className={`text-sm text-slate-800 text-right ${bold ? "font-bold tabular-nums" : ""}`}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── BANNERS PREVIEW ─────────────────────────────────────────────────────────
+
+function BannersPreview() {
+  return (
+    <div className="space-y-3 max-w-lg">
+      {/* Erro */}
+      <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+        <MSIcon name="mail_lock" className="text-red-500 flex-shrink-0" style={{ fontSize: "20px" }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-red-800">Falha no envio do email</p>
+          <p className="text-xs text-red-600 mt-0.5">O email não foi entregue. Clique para reenviar.</p>
+        </div>
+        <button
+          className="flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-xl text-white flex-shrink-0"
+          style={{ backgroundColor: "#dc2626" }}
+        >
+          <MSIcon name="refresh" style={{ fontSize: "16px" }} />
+          Reenviar
+        </button>
+      </div>
+
+      {/* Aguardando confirmação */}
+      <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+        <MSIcon name="mark_email_read" className="text-emerald-600 flex-shrink-0" style={{ fontSize: "20px" }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-emerald-800">Email enviado à cooperativa</p>
+          <p className="text-xs text-emerald-600 mt-0.5">Após o pagamento, confirme abaixo para encerrar.</p>
+        </div>
+        <button
+          className="flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-xl text-white flex-shrink-0"
+          style={{ backgroundColor: "#059669" }}
+        >
+          <MSIcon name="check_circle" style={{ fontSize: "16px" }} />
+          Confirmar
+        </button>
+      </div>
+
+      {/* Finalizado (sem botão) */}
+      <div className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+        <MSIcon name="task_alt" className="text-emerald-500 flex-shrink-0" style={{ fontSize: "20px" }} />
+        <p className="text-sm text-slate-600">Reembolso finalizado. Nenhuma ação necessária.</p>
+      </div>
+
+      {/* Aviso âmbar (informativo) */}
+      <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <MSIcon name="info" className="text-amber-500 flex-shrink-0" style={{ fontSize: "14px" }} />
+        <p className="text-xs text-amber-700">Funcionário não encontrado no cadastro do RH.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── TIMELINE PREVIEW ────────────────────────────────────────────────────────
+
+function TimelinePreview() {
+  const events = [
+    { tipo: "reembolso_criado",            label: "Solicitação criada",          icon: "add_circle",       color: "#1d4ed8", bg: "#eff6ff", border: "#bfdbfe", user: "ana.silva@sellers.com.br",  date: "10/04/2026 09:12" },
+    { tipo: "email_cooperativa_enviado",   label: "Email enviado à cooperativa", icon: "mark_email_read",  color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0", user: "sistema",                  date: "10/04/2026 09:13" },
+    { tipo: "email_cooperativa_reenviado", label: "Email reenviado",             icon: "refresh",          color: "#1d4ed8", bg: "#eff6ff", border: "#bfdbfe", user: "rh@sellers.com.br",        date: "11/04/2026 14:05" },
+    { tipo: "reembolsado",                 label: "Pagamento confirmado",        icon: "payments",         color: "#065f46", bg: "#d1fae5", border: "#6ee7b7", user: "rh@sellers.com.br",        date: "14/04/2026 10:30" },
+  ];
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden max-w-sm">
+      <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MSIcon name="history" className="text-slate-400" style={{ fontSize: "18px" }} />
+          <h3 className="text-sm font-semibold text-slate-700">Histórico</h3>
+        </div>
+        <span className="text-xs font-medium bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full tabular-nums">
+          {events.length} eventos
+        </span>
+      </div>
+      <div className="p-5">
+        <ol className="relative border-l-2 border-slate-100 ml-2 space-y-5">
+          {events.map((ev, i) => (
+            <li key={i} className="ml-5">
+              <span
+                className="absolute -left-[11px] w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                style={{ backgroundColor: ev.bg, borderColor: ev.border }}
+              >
+                <MSIcon name={ev.icon} style={{ fontSize: "11px", color: ev.color }} />
+              </span>
+              <p className="text-sm font-medium" style={{ color: ev.color }}>{ev.label}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{ev.user} · {ev.date}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+}
+
+// ─── EMAIL INPUT PREVIEW ─────────────────────────────────────────────────────
+
+const DS_EMAIL_DOMAINS = ["sellers.com.br", "gmail.com", "outlook.com", "hotmail.com", "yahoo.com.br"];
+const DS_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function DSEmailInput() {
+  const [value, setValue] = useState("");
+  const [open, setOpen] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const hasAt = value.includes("@");
+  const localPart = hasAt ? value.split("@")[0] : value;
+  const afterAt = hasAt ? value.split("@")[1] ?? "" : "";
+
+  const suggestions = hasAt
+    ? DS_EMAIL_DOMAINS.filter((d) => d.toLowerCase().startsWith(afterAt.toLowerCase()) && d !== afterAt)
+    : [];
+
+  const isValid = DS_EMAIL_RE.test(value);
+  const isError = touched && value.length > 0 && !isValid;
+
+  useEffect(() => {
+    function h(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const v = e.target.value;
+    setValue(v);
+    const sug = v.includes("@")
+      ? DS_EMAIL_DOMAINS.filter((d) => d.toLowerCase().startsWith((v.split("@")[1] ?? "").toLowerCase()) && d !== (v.split("@")[1] ?? ""))
+      : [];
+    setOpen(v.includes("@") && sug.length > 0);
+  }
+
+  const borderClass = isError
+    ? "border-red-400 focus:ring-red-300"
+    : isValid && value.length > 0
+    ? "border-emerald-300 focus:ring-emerald-300"
+    : "border-slate-200 focus:ring-blue-400";
+
+  return (
+    <div ref={wrapRef} className="relative max-w-xs">
+      <div className="relative">
+        <input
+          type="email"
+          value={value}
+          onChange={handleChange}
+          onFocus={() => { if (hasAt && suggestions.length > 0) setOpen(true); }}
+          onBlur={() => { setTouched(true); setOpen(false); }}
+          placeholder="usuario@sellers.com.br"
+          autoComplete="off"
+          className={`w-full h-9 px-3 pr-9 text-sm border rounded-lg focus:outline-none focus:ring-2 bg-white transition-colors dark:bg-slate-800 dark:text-slate-100 ${borderClass}`}
+        />
+        {value.length > 0 && (
+          <span
+            className={`absolute right-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] pointer-events-none ${
+              isError ? "text-red-400" : isValid ? "text-emerald-500" : "text-slate-300"
+            }`}
+            aria-hidden="true"
+          >
+            {isError ? "error_outline" : isValid ? "check_circle" : "alternate_email"}
+          </span>
+        )}
+      </div>
+      {open && suggestions.length > 0 && (
+        <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+          {suggestions.map((domain) => (
+            <button
+              key={domain}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { setValue(`${localPart}@${domain}`); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-50 transition-colors text-left"
+            >
+              <MSIcon name="alternate_email" className="text-[15px] text-slate-400 flex-shrink-0" />
+              <span className="text-slate-500">{localPart}@</span>
+              <span className="font-medium text-slate-800">{domain}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmailInputPreview() {
+  return (
+    <div className="space-y-5">
+      <SubSection title="Interativo — digite um email ou '@' para ver o autocomplete">
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Email do RH
+          </label>
+          <DSEmailInput />
+          <p className="text-[11px] text-slate-400">Borda fica azul enquanto digita · vermelho só após blur+inválido · verde quando válido</p>
+        </div>
+      </SubSection>
+
+      <SubSection title="Estados fixos">
+        <div className="flex flex-wrap gap-4 items-start">
+          {/* Vazio */}
+          <div className="space-y-1">
+            <p className="text-[11px] text-slate-400">Vazio</p>
+            <div className="relative max-w-[200px]">
+              <input readOnly placeholder="usuario@..." className="w-full h-9 px-3 text-sm border border-slate-200 rounded-lg bg-white" />
+            </div>
+          </div>
+          {/* Válido */}
+          <div className="space-y-1">
+            <p className="text-[11px] text-slate-400">Válido</p>
+            <div className="relative max-w-[200px]">
+              <input readOnly value="rh@sellers.com.br" className="w-full h-9 px-3 pr-9 text-sm border border-emerald-300 rounded-lg bg-white" />
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-emerald-500 pointer-events-none">check_circle</span>
+            </div>
+          </div>
+          {/* Inválido (após blur) */}
+          <div className="space-y-1">
+            <p className="text-[11px] text-slate-400">Inválido (pós-blur)</p>
+            <div className="relative max-w-[200px]">
+              <input readOnly value="nao-e-email" className="w-full h-9 px-3 pr-9 text-sm border border-red-400 rounded-lg bg-white" />
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-red-400 pointer-events-none">error_outline</span>
+            </div>
+          </div>
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
 // ─── NAV INDEX ────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
@@ -2123,10 +2628,179 @@ const SECTIONS = [
   { id: "agendamento",  label: "Agendamento",   icon: "schedule_send" },
   { id: "calendario",   label: "Calendário",    icon: "calendar_month" },
   { id: "exportpdf",    label: "Exportar PDF",  icon: "picture_as_pdf" },
+  { id: "detalhe",      label: "Detalhe",       icon: "account_circle" },
+  { id: "banners",      label: "Banners",       icon: "crisis_alert" },
+  { id: "timeline",     label: "Timeline",      icon: "history" },
+  { id: "emailinput",   label: "Email Input",   icon: "alternate_email" },
   { id: "animacoes",    label: "Animações",     icon: "motion_photos_on" },
   { id: "icons",        label: "Ícones",        icon: "interests" },
   { id: "graficos",     label: "Gráficos",      icon: "bar_chart" },
+  { id: "realtime",     label: "Real-time",     icon: "sensors" },
+  { id: "fab",          label: "FAB",           icon: "add_circle" },
+  { id: "estados",      label: "Empty / Error", icon: "report" },
+  { id: "format",       label: "Formatadores",  icon: "functions" },
 ];
+
+// ─── REAL-TIME BADGE SHOWCASE ────────────────────────────────────────────────
+
+function RealtimeBadgeShowcase() {
+  const now = Date.now();
+  return (
+    <div className="space-y-5">
+      <SubSection title="Modos">
+        <div className="flex flex-wrap gap-3 items-center">
+          <RealtimeBadge mode="stream" />
+          <RealtimeBadge mode="poll" intervalMs={30_000} lastUpdateAt={now - 4_000} />
+          <RealtimeBadge mode="poll" intervalMs={15_000} lastUpdateAt={now - 12_000} />
+          <RealtimeBadge mode="snapshot" lastUpdateAt={now - 90 * 60 * 1000} />
+          <RealtimeBadge mode="stream" paused />
+          <RealtimeBadge mode="poll" offline />
+        </div>
+      </SubSection>
+      <SubSection title="Em contexto · cabeçalho de seção">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Operação</p>
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Pagamentos travados</h4>
+            </div>
+            <RealtimeBadge mode="poll" intervalMs={30_000} lastUpdateAt={now - 7_000} />
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">conteúdo da seção…</p>
+        </div>
+      </SubSection>
+      <SubSection title="Tokens">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-[11px] font-mono">
+          <Chip label="stream" value="emerald-50/700" />
+          <Chip label="poll" value="blue-50/700" />
+          <Chip label="snapshot" value="slate-100/700" />
+          <Chip label="paused" value="amber-50/700" />
+          <Chip label="offline" value="red-50/700" />
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
+// ─── FAB SHOWCASE ────────────────────────────────────────────────────────────
+
+function FabShowcase() {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <div className="space-y-5">
+      <SubSection title="Variantes (estático para preview)">
+        <div className="flex flex-wrap gap-6 items-center">
+          <Fab
+            position="static"
+            icon={<MSIcon name="visibility" />}
+            label="Tapar dados sensíveis"
+          />
+          <Fab
+            position="static"
+            variant="subtle"
+            icon={<MSIcon name="help" />}
+            label="Ajuda"
+          />
+          <Fab
+            position="static"
+            icon={<MSIcon name={pressed ? "visibility_off" : "visibility"} />}
+            label={pressed ? "Mostrar dados" : "Tapar dados"}
+            pressed={pressed}
+            onClick={() => setPressed((p) => !p)}
+          />
+          <span className="text-[11px] font-mono text-slate-400">↑ clica e vira pressed</span>
+        </div>
+      </SubSection>
+      <SubSection title="Padrão de uso">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-4 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p>1 FAB por viewport. Se houver mais de uma ação primária persistente, repensar a hierarquia.</p>
+          <p className="mt-2">Em produção, omitir <code className="font-mono">position</code> mantém o default <code className="font-mono">fixed bottom-6 right-6</code>.</p>
+        </div>
+      </SubSection>
+    </div>
+  );
+}
+
+// ─── EMPTY / ERROR SHOWCASE ──────────────────────────────────────────────────
+
+function EmptyErrorShowcase() {
+  return (
+    <div className="grid md:grid-cols-2 gap-4">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
+        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-widest text-slate-400">EmptyState</div>
+        <EmptyState
+          icon={<MSIcon name="task_alt" />}
+          title="Nada por aqui"
+          description="Nenhuma conta com saldo negativo no filtro atual. Ajuste os filtros ou volte mais tarde."
+          action={
+            <button className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-sm">
+              <MSIcon name="filter_alt_off" className="text-[15px]" />
+              Limpar filtros
+            </button>
+          }
+        />
+      </div>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
+        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-widest text-slate-400">ErrorState</div>
+        <div className="p-4">
+          <ErrorState
+            title="Falha ao carregar"
+            description="Não conseguimos contatar o BFF. Os dados exibidos podem estar desatualizados."
+            error={new Error("ECONNREFUSED 127.0.0.1:8088")}
+            retry={() => alert("retry()")}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FORMAT SHOWCASE ─────────────────────────────────────────────────────────
+
+function FormatShowcase() {
+  const samples = [0, 12.5, 1234.56, -98.7, 1_234_567.89, -2_500_000];
+  const now = Date.now();
+  return (
+    <div className="space-y-5">
+      <SubSection title="formatBRL · formatBRLCompact">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <tr>
+                <th className="text-left px-4 py-2">input</th>
+                <th className="text-right px-4 py-2">formatBRL</th>
+                <th className="text-right px-4 py-2">formatBRL · 0 dec</th>
+                <th className="text-right px-4 py-2">formatBRLCompact</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+              {samples.map((n) => (
+                <tr key={n}>
+                  <td className="px-4 py-1.5 font-mono text-xs text-slate-500">{n}</td>
+                  <td className="px-4 py-1.5 text-right font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatBRL(n)}</td>
+                  <td className="px-4 py-1.5 text-right font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatBRL(n, { decimals: 0 })}</td>
+                  <td className="px-4 py-1.5 text-right font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatBRLCompact(n)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SubSection>
+      <SubSection title="formatDate · formatRelativeTime">
+        <div className="grid sm:grid-cols-2 gap-3 text-sm">
+          <Chip label="short" value={formatDate(now)} />
+          <Chip label="long" value={formatDate(now, "long")} />
+          <Chip label="time" value={formatDate(now, "time")} />
+          <Chip label="dateTime" value={formatDate(now, "dateTime")} />
+          <Chip label="há 5min" value={formatRelativeTime(now - 5 * 60 * 1000)} />
+          <Chip label="há 2h" value={formatRelativeTime(now - 2 * 3600 * 1000)} />
+          <Chip label="ontem" value={formatRelativeTime(now - 24 * 3600 * 1000)} />
+          <Chip label="em 3min" value={formatRelativeTime(now + 3 * 60 * 1000)} />
+        </div>
+      </SubSection>
+    </div>
+  );
+}
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
@@ -2460,7 +3134,7 @@ export function DesignSystemPage() {
 
         {/* ── 10. SIDEBAR ── */}
         <div id="sidebar" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
-          <Section title="Sidebar" description="Dark theme #0a1628. Modo compacto (ícones) e expandido. Clique para trocar item ativo.">
+          <Section title="Sidebar" description="Variantes Dark (#0a1628) e Light (#ffffff). Modo compacto e expandido com hover, barra ativa, avatar e notificações.">
             <SidebarPreview />
           </Section>
         </div>
@@ -2535,6 +3209,36 @@ export function DesignSystemPage() {
           </Section>
         </div>
 
+        {/* ── 21. DETALHE / HERO ── */}
+        <div id="detalhe" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Detalhe / Hero Card" description="Padrão para páginas de detalhe (/rh/reembolsos/:id etc). Avatar com iniciais coral, valor em destaque, StatusBadge inline-style e metadata bar.">
+            <SubSection title="Hero Card + InfoRows">
+              <DetailHeroPreview />
+            </SubSection>
+          </Section>
+        </div>
+
+        {/* ── 22. BANNERS CONTEXTUAIS ── */}
+        <div id="banners" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Banners Contextuais" description="Faixas de ação que aparecem abaixo do hero em páginas de detalhe. 4 variantes: erro (vermelho), aguardando (verde), finalizado (slate) e aviso (âmbar).">
+            <BannersPreview />
+          </Section>
+        </div>
+
+        {/* ── 23. TIMELINE ── */}
+        <div id="timeline" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Timeline / Histórico" description="Lista vertical com linha lateral + círculos coloridos por tipo de evento. Usado no histórico de auditoria de reembolsos e despesas.">
+            <TimelinePreview />
+          </Section>
+        </div>
+
+        {/* ── 24. EMAIL INPUT ── */}
+        <div id="emailinput" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Email Input" description="Input com autocomplete de domínio ao digitar '@', validação diferida (erro só após blur) e ícone inline de estado (neutro/válido/inválido).">
+            <EmailInputPreview />
+          </Section>
+        </div>
+
         {/* ── 20. ANIMAÇÕES ── */}
         <div id="animacoes" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
           <Section title="Animações" description="Animações de produção e showcase premium com o ícone Óculos Sellers. Dark stage, glow, spring physics, parallax e stroke draw.">
@@ -2543,6 +3247,16 @@ export function DesignSystemPage() {
             </SubSection>
             <SubSection title="Produção — modal-in, fade-in, countup-bar & AI dots">
               <ExtraAnimationsGrid />
+            </SubSection>
+            <SubSection title="Produção — banner-in, kpi-in (stagger), pulse-err (3 ondas, para)">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {/* banner-in */}
+                <BannerInDemo />
+                {/* kpi-in stagger */}
+                <KpiInStaggerDemo />
+                {/* pulse-err */}
+                <PulseErrDemo />
+              </div>
             </SubSection>
             <SubSection title="Óculos Showcase">
               <TailwindAnimsGrid />
@@ -2569,9 +3283,37 @@ export function DesignSystemPage() {
           </Section>
         </div>
 
+        {/* ── 14. REAL-TIME BADGE ── */}
+        <div id="realtime" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Real-time Badge" description="Sinalizador único para qualquer seção que faz polling, stream ou snapshot histórico. Use no cabeçalho de cards/listas — substitui badges ad-hoc.">
+            <RealtimeBadgeShowcase />
+          </Section>
+        </div>
+
+        {/* ── 15. FAB ── */}
+        <div id="fab" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Floating Action Button" description="Ação primária sempre acessível. 56×56px, sombra forte, fixed bottom-right por padrão. Aceita estado pressed (toggle).">
+            <FabShowcase />
+          </Section>
+        </div>
+
+        {/* ── 16. EMPTY / ERROR ── */}
+        <div id="estados" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Empty & Error States" description="Padrão para listas/tabelas vazias (sem ser erro) e para falhas de carregamento. Use sempre que uma query retornar [] ou falhar.">
+            <EmptyErrorShowcase />
+          </Section>
+        </div>
+
+        {/* ── 17. FORMATADORES ── */}
+        <div id="format" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm px-4 sm:px-8 py-5 sm:py-7">
+          <Section title="Formatadores canônicos" description="Locale pt-BR. Importe sempre de @sellers/design-system/lib/format — não reescreva.">
+            <FormatShowcase />
+          </Section>
+        </div>
+
         {/* Footer */}
         <div className="text-center py-6 border-t border-slate-200 dark:border-slate-700/50 mt-4">
-          <p className="text-xs text-slate-400 dark:text-slate-500">Sellers Sistema Financeiro · Design System v0.2 · 2026</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Sellers Sistema Financeiro · Design System v0.3 · 2026</p>
           <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1">Inter · Material Symbols Outlined · Tailwind CSS 3.3 · Radix UI</p>
         </div>
       </div>
